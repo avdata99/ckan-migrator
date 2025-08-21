@@ -1,0 +1,15 @@
+services:
+  postgres-old:
+    image: postgres:9.6  # Use the specific minor version closest to your dump
+    environment:
+      POSTGRES_DB: old_ckan_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "9133:5432"  # Map host port 9133 to container port 5432 to avoid conflict with any local PG
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./dump:/dump
+
+volumes:
+  postgres_data:
