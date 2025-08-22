@@ -8,7 +8,7 @@ import argparse
 import logging
 import psycopg2.extras
 from db import PSQL
-from ckan_migrate.user import import_users
+from ckan_migrate import import_users, import_groups, import_organizations
 
 # Configure logging to output to stdout
 logging.basicConfig(
@@ -44,6 +44,12 @@ def parse_args():
     parser.add_argument('--new-dbname', default='ckan', help='New database name (default: ckan)')
     parser.add_argument('--new-user', default='ckan', help='New database user (default: ckan)')
     parser.add_argument('--new-password', default='password', help='New database password (default: password)')
+
+    parser.add_argument(
+        '--steps',
+        default='users,organizations,groups',
+        help='Comma-separated steps to run in migrate mode. Options: users,organizations,groups'
+    )
 
     # sample
     # python migrate.py --mode migrate --new-host localhost --new-port 8012 --new-dbname ckan_test --new-user ckan_default --new-password pass
@@ -107,7 +113,24 @@ def main():
 
     # Capture all logs for all migrations
     final_logs = {}
-    final_logs['users'] = import_users(old_db, new_db)
+    steps = [s.strip().lower() for s in (args.steps or '').split(',') if s.strip()]
+
+    try:
+        if 'users' in steps:
+            final_logs['users'] = import_users(old_db, new_db)
+            print("Users migrated.")
+
+        if 'groups' in steps:
+            final_logs['groups_orgs'] = import_groups_and_orgs(old_db, new_db)
+            print("Organizations & Groups migrated.")
+
+        print(f'Migration finished: {final_logs}')
+    finally:
+        # cierre ordenado
+        try:
+            new_db.disconnect()
+        finally:
+            old_db.disconnect()
 
     print(f'Migration finished: {final_logs}')
 
