@@ -31,7 +31,8 @@ def parse_args():
         )
     )
 
-    parser.add_argument('--mode', choices=['migrate', 'structure', 'all'], default='migrate', help='Migration mode (default: migrate)')
+    parser.add_argument('--mode', choices=['migrate', 'structure', 'all'], default='migrate',
+                        help='Migration mode (default: migrate)')
 
     parser.add_argument('--old-host', default='localhost', help='Old database host (default: localhost)')
     parser.add_argument('--old-port', type=int, default=9133, help='Old database port (default: 9133)')
@@ -52,7 +53,8 @@ def parse_args():
     )
 
     # sample
-    # python migrate.py --mode migrate --new-host localhost --new-port 8012 --new-dbname ckan_test --new-user ckan_default --new-password pass
+    # python migrate.py --mode migrate --new-host localhost --new-port 8012 --new-dbname ckan_test
+    # --new-user ckan_default --new-password pass
     return parser.parse_args()
 
 
@@ -121,10 +123,12 @@ def main():
             print("Users migrated.")
 
         if 'groups' in steps:
-            final_logs['groups_orgs'] = import_groups_and_orgs(old_db, new_db)
+            final_logs['groups_orgs'] = import_groups(old_db, new_db)
             print("Organizations & Groups migrated.")
 
-        print(f'Migration finished: {final_logs}')
+        if 'organizations' in steps:
+            final_logs['organizations'] = import_organizations(old_db, new_db)
+            print("Organizations migrated.")
     finally:
         # cierre ordenado
         try:
