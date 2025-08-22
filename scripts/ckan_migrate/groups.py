@@ -8,6 +8,7 @@ FIELDS = [
     'approval_status', 'image_url', 'is_organization'
 ]
 
+
 def _transform(row):
     return {
         'id': row['id'],
@@ -22,6 +23,7 @@ def _transform(row):
         'is_organization': False,
     }
 
+
 def _upsert(new_db, gdict):
     placeholders = ', '.join(['%s'] * len(FIELDS))
     set_cols = ', '.join(FIELDS)
@@ -33,6 +35,7 @@ def _upsert(new_db, gdict):
     else:
         sql = f'INSERT INTO public."group" ({set_cols}) VALUES ({placeholders})'
         new_db.cursor.execute(sql, tuple(gdict[f] for f in FIELDS))
+
 
 def import_groups(old_db, new_db):
     """
