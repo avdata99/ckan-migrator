@@ -45,7 +45,7 @@ def parse_args():
     parser.add_argument('--new-user', default='ckan', help='New database user (default: ckan)')
     parser.add_argument('--new-password', default='password', help='New database password (default: password)')
 
-    # sample ckan_default:pass
+    # sample
     # python migrate.py --mode migrate --new-host localhost --new-port 8012 --new-dbname ckan_test --new-user ckan_default --new-password pass
     return parser.parse_args()
 
