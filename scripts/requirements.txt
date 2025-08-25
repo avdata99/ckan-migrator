@@ -1,2 +1,5 @@
-pandas
+pytest
+pytest-cov
+testcontainers[postgres]~=4.7
 psycopg2-binary
+pandas
