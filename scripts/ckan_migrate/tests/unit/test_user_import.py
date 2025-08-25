@@ -1,6 +1,7 @@
 import types
 from scripts.ckan_migrate.user import import_users
 
+
 class OldCursor:
     """Simula el cursor del OLD DB: devuelve una fila completa de user"""
     def __init__(self):

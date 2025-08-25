@@ -6,9 +6,11 @@ import pytest
 
 SQL_DIR = Path(__file__).parent / "sql"
 
+
 def _exec_sql(dsn, sql_path: Path):
     with psycopg2.connect(dsn) as conn, conn.cursor() as cur:
         cur.execute(sql_path.read_text())
+
 
 def _sqlalchemy_url_to_psycopg2_dsn(url: str) -> str:
     """
@@ -23,6 +25,7 @@ def _sqlalchemy_url_to_psycopg2_dsn(url: str) -> str:
     path = parsed.path      # /dbname
     return f"{scheme}://{netloc}{path}"
 
+
 @pytest.fixture(scope="session")
 def pg_old():
     with PostgresContainer("postgres:9.6").with_env("POSTGRES_DB", "old_ckan_db") as pg:
@@ -31,10 +34,11 @@ def pg_old():
         _exec_sql(dsn, SQL_DIR / "old_minimal.sql")
         yield pg, dsn
 
+
 @pytest.fixture(scope="session")
 def pg_new():
     with PostgresContainer("postgres:15") as pg:
         conn_url = pg.get_connection_url()
         dsn = _sqlalchemy_url_to_psycopg2_dsn(conn_url)
-        _exec_sql(dsn, SQL_DIR / "new_schema.sql")
+        _exec_sql(dsn, SQL_DIR / "new_minimal.sql")
         yield pg, dsn

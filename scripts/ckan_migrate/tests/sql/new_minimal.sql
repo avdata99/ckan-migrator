@@ -1,9 +1,14 @@
+DROP TABLE IF EXISTS "user" CASCADE;
+DROP TABLE IF EXISTS "group" CASCADE;
+
 CREATE TABLE "user"(
   id uuid PRIMARY KEY,
   name text UNIQUE,
   fullname text,
   email text,
+  about text,
   created timestamp,
+  sysadmin boolean default false,
   state text
 );
 

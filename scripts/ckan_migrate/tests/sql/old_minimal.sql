@@ -1,9 +1,14 @@
+DROP TABLE IF EXISTS "user" CASCADE;
+DROP TABLE IF EXISTS "group" CASCADE;
+
 CREATE TABLE "user"(
   id uuid PRIMARY KEY,
   name text UNIQUE,
   fullname text,
   email text,
+  about text,
   created timestamp,
+  sysadmin boolean default false,
   state text
 );
 
@@ -21,10 +26,10 @@ CREATE TABLE "group"(
 );
 
 /* Datos de ejemplo */
-INSERT INTO "user"(id,name,fullname,email,created,state)
+INSERT INTO "user"(id,name,fullname,email,about,created,sysadmin,state)
 VALUES
-('00000000-0000-0000-0000-000000000001','admin','Admin','admin@example.com','2010-01-01','active'),
-('00000000-0000-0000-0000-000000000002','user1','User 1','u1@example.com','2011-01-01','active');
+('00000000-0000-0000-0000-000000000001','admin','Admin','admin@example.com',NULL,'2010-01-01',true,'active'),
+('00000000-0000-0000-0000-000000000002','user1','User 1','u1@example.com',NULL,'2011-01-01',false,'active');
 
 INSERT INTO "group"(id,name,title,description,created,state,type,approval_status,image_url,is_organization)
 VALUES
