@@ -114,15 +114,22 @@ def main():
     print("New database connection established.")
 
     # Capture all logs for all migrations
-    final_logs = {}
+    allowed_steps = {'users', 'organizations', 'groups'}
     steps = [s.strip().lower() for s in (args.steps or '').split(',') if s.strip()]
+    unknown = [s for s in steps if s not in allowed_steps]
+    if unknown:
+        raise ValueError(f"Unknown steps: {unknown}. Allowed: {sorted(allowed_steps)}")
 
+    final_logs = {}
+
+    # Ejecuta y falla temprano si algo sale mal; no atrapamos excepciones aquí
     try:
         if 'users' in steps:
             final_logs['users'] = import_users(old_db, new_db)
             print("Users migrated.")
 
         if 'groups' in steps:
+            # tu import_groups ya migra organizaciones & grupos
             final_logs['groups_orgs'] = import_groups(old_db, new_db)
             print("Organizations & Groups migrated.")
 
@@ -130,13 +137,15 @@ def main():
             final_logs['organizations'] = import_organizations(old_db, new_db)
             print("Organizations migrated.")
     finally:
-        # cierre ordenado
+        # cierre ordenado: siempre intentamos cerrar ambas conexiones
         try:
-            new_db.disconnect()
+            if new_db and new_db.conn:
+                new_db.disconnect()
         finally:
-            old_db.disconnect()
+            if old_db and old_db.conn:
+                old_db.disconnect()
 
-    print(f'Migration finished: {final_logs}')
+    print(f"Migration finished: {final_logs}")
 
 
 if __name__ == "__main__":
