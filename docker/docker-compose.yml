@@ -11,17 +11,6 @@ services:
       - postgres_old_data:/var/lib/postgresql/data
       - ./dump:/dump
 
-  postgres-new:
-    image: postgres:14
-    environment:
-      POSTGRES_DB: ckan_test
-      POSTGRES_USER: ckan_default
-      POSTGRES_PASSWORD: pass
-    ports:
-      - "8013:5432"
-    volumes:
-      - postgres_new_data:/var/lib/postgresql/data
-
 volumes:
   postgres_old_data:
   postgres_new_data:
