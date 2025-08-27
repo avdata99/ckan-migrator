@@ -142,5 +142,6 @@ def main():
 
     print(f"Migration finished: {final_logs}")
 
+
 if __name__ == "__main__":
     main()
