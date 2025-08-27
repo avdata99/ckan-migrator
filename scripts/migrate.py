@@ -8,7 +8,7 @@ import argparse
 import logging
 import psycopg2.extras
 from db import PSQL
-from ckan_migrate import import_users, import_groups, import_organizations
+from ckan_migrate import import_users, import_groups
 
 # Configure logging to output to stdout
 logging.basicConfig(
@@ -129,15 +129,10 @@ def main():
             print("Users migrated.")
 
         if 'groups' in steps:
-            # tu import_groups ya migra organizaciones & grupos
+            # import_groups ya migra organizaciones & grupos
             final_logs['groups_orgs'] = import_groups(old_db, new_db)
             print("Organizations & Groups migrated.")
-
-        if 'organizations' in steps:
-            final_logs['organizations'] = import_organizations(old_db, new_db)
-            print("Organizations migrated.")
     finally:
-        # cierre ordenado: siempre intentamos cerrar ambas conexiones
         try:
             if new_db and new_db.conn:
                 new_db.disconnect()
@@ -146,7 +141,6 @@ def main():
                 old_db.disconnect()
 
     print(f"Migration finished: {final_logs}")
-
 
 if __name__ == "__main__":
     main()
