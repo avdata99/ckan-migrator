@@ -1,3 +1,4 @@
+import hashlib
 import re
 import uuid
 
@@ -26,3 +27,12 @@ def ensure_unique_name(base_name, is_taken, suffix_seed=None, max_tries=50):
         cand = f"{name}-migrated-{uuid.uuid4().hex[:12]}"
         if not is_taken(cand):
             return cand
+
+
+def handle_duplicate_emails(user_email, users_in_use):
+    if user_email in users_in_use:
+        # Crear un hash del correo para asegurar que sea único
+        hash_email = f"{user_email}_{hashlib.md5(user_email.encode()).hexdigest()}"
+        return hash_email
+    else:
+        return user_email
