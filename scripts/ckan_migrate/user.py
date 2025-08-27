@@ -1,4 +1,5 @@
 import logging
+from .helpers import handle_duplicate_emails
 
 
 log = logging.getLogger(__name__)
@@ -31,15 +32,8 @@ def import_users(old_db, new_db):
             ret['skipped_rows'] += 1
             continue
 
-        if new_user['email'] in emails_in_use:
-            # Add a hash to the email
-            dup_email = new_user['email']
-            parts = new_user['email'].split('@')
-            new_user['email'] = f"{parts[0]}_{hash(user['id'])}@{parts[1]}"
-            ret['errors'].append(
-                f" - User '{user['name']}' has a duplicate email."
-                f" New email: {new_user['email']} (old: {dup_email})"
-            )
+        new_user['email'] = handle_duplicate_emails(new_user['email'], emails_in_use)
+        emails_in_use.append(new_user['email'])
 
         fields = new_user.keys()
         placeholders = ', '.join(['%s'] * len(fields))
