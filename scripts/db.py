@@ -179,9 +179,12 @@ class PSQL:
 
             # Convert datetime columns to strings to avoid overflow issues
             for col in df_json.columns:
-                if df_json[col].dtype == 'datetime64[ns]' or \
-                   pd.api.types.is_datetime64_any_dtype(df_json[col]):
-                    df_json[col] = df_json[col].astype(str)
+                if pd.api.types.is_datetime64_any_dtype(df_json[col]):
+                    try:
+                        df_json[col] = df_json[col].astype(str)  # Convert datetime columns explicitly
+                    except Exception as e:
+                        print(f"Error converting datetime column '{col}' to string: {e}")
+                        df_json[col] = df_json[col].apply(str)  # In case conversion fails, just convert to string
                 elif df_json[col].dtype == 'object':
                     # Handle mixed types that might contain dates
                     try:
@@ -189,13 +192,16 @@ class PSQL:
                         sample_vals = df_json[col].dropna().head(5)
                         if len(sample_vals) > 0:
                             for val in sample_vals:
-                                if pd.api.types.is_datetime64_any_dtype(
-                                        pd.to_datetime(val, errors='ignore')):
-                                    df_json[col] = df_json[col].astype(str)
+                                try:
+                                    pd.to_datetime(val)  # Attempt conversion to datetime
+                                    df_json[col] = df_json[col].astype(str)  # If it's a date, convert the whole column
                                     break
-                    except Exception:
+                                except (ValueError, TypeError):
+                                    continue  # Skip invalid datetime values
+                    except Exception as e:
                         # If there's any issue, convert to string to be safe
-                        pass
+                        print(f"Error processing column '{col}' for potential date values: {e}")
+                        df_json[col] = df_json[col].apply(str)  # Convert to string to avoid issues
 
             df_json.to_json(json_path, orient='records', indent=2)
             print(f"Saved {table_name} JSON data to {json_path}")
@@ -210,11 +216,9 @@ class PSQL:
                         df_safe[col] = df_safe[col].astype(str)
 
                 df_safe.to_json(json_path, orient='records', indent=2)
-                print(f"Saved {table_name} JSON data to {json_path} "
-                      "(fallback)")
+                print(f"Saved {table_name} JSON data to {json_path} (fallback)")
             except Exception as e2:
-                msg = f"Failed to save JSON for {table_name} even with "
-                msg += f"fallback: {e2}"
+                msg = f"Failed to save JSON for {table_name} even with fallback: {e2}"
                 print(msg)
                 # Create a simple JSON with just the error info
                 error_data = {
