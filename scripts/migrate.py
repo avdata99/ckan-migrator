@@ -22,6 +22,7 @@ from ckan_migrate.group_extra import import_group_extras
 from ckan_migrate.resource_view import import_resource_views
 from ckan_migrate.activity import import_activities
 from ckan_migrate.activity_detail import import_activity_details
+from ckan_migrate.dashboard import import_dashboards
 
 # Configure logging to output to stdout
 logging.basicConfig(
@@ -158,6 +159,7 @@ def main():
     final_logs['resource_views'] = import_resource_views(old_db, new_db)
     final_logs['activities'] = import_activities(old_db, new_db)
     final_logs['activity_details'] = import_activity_details(old_db, new_db)
+    final_logs['dashboards'] = import_dashboards(old_db, new_db)
 
     print(f'Migration finished: {final_logs}')
 
