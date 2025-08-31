@@ -29,18 +29,22 @@ def import_resource_views(old_db, new_db):
             ret['skipped_rows'] += 1
             continue
 
-        fields = new_resource_view.keys()
-        placeholders = ', '.join(['%s'] * len(fields))
+        # Quote field names to handle reserved keywords like 'order'
+        quoted_fields = [f'"{field}"' for field in new_resource_view.keys()]
+        placeholders = ', '.join(['%s'] * len(quoted_fields))
         # Check if the resource view ID exists
         sql = 'SELECT * FROM "resource_view" WHERE id = %s'
         new_db.cursor.execute(sql, (resource_view["id"],))
         if new_db.cursor.fetchone():
             log.warning(f" - Resource view {resource_view['id']} already exists, updating the record")
-            sql = f'UPDATE "resource_view" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
-            new_db.cursor.execute(sql, tuple(new_resource_view[field] for field in fields) + (resource_view["id"],))
+            sql = f'UPDATE "resource_view" SET ({", ".join(quoted_fields)}) = ({placeholders}) WHERE id= %s'
+            new_db.cursor.execute(
+                sql,
+                tuple(new_resource_view[field.strip('"')] for field in quoted_fields) + (resource_view["id"],)
+            )
         else:
-            sql = f'INSERT INTO "resource_view" ({', '.join(fields)}) VALUES ({placeholders})'
-            new_db.cursor.execute(sql, tuple(new_resource_view[field] for field in fields))
+            sql = f'INSERT INTO "resource_view" ({", ".join(quoted_fields)}) VALUES ({placeholders})'
+            new_db.cursor.execute(sql, tuple(new_resource_view[field.strip('"')] for field in quoted_fields))
         log.info(f" - Resource view {resource_view['id']} imported successfully.")
         ret['migrated_rows'] += 1
 
