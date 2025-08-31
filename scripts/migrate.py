@@ -19,6 +19,7 @@ from ckan_migrate.package_extra import import_package_extras
 from ckan_migrate.package_tag import import_package_tags
 from ckan_migrate.member import import_members
 from ckan_migrate.group_extra import import_group_extras
+from ckan_migrate.resource_view import import_resource_views
 
 # Configure logging to output to stdout
 logging.basicConfig(
@@ -152,6 +153,7 @@ def main():
     final_logs['package_tags'] = import_package_tags(old_db, new_db)
     final_logs['members'] = import_members(old_db, new_db)
     final_logs['group_extras'] = import_group_extras(old_db, new_db)
+    final_logs['resource_views'] = import_resource_views(old_db, new_db)
 
     print(f'Migration finished: {final_logs}')
 
