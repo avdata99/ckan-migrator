@@ -270,7 +270,7 @@ class PSQL:
 
         return "\n".join(report)
 
-    def extract_all_data(self, save_data: bool = True, row_limit: int = None):
+    def extract_all_data(self, save_data: bool = True, row_limit: int = None, filename_prefix: str = ""):
         """
         Main method to extract all database information and data.
         """
@@ -303,14 +303,16 @@ class PSQL:
 
             # Generate and save report
             report = self.generate_database_report(tables_info)
-            with open("database_report.md", "w") as f:
+            report_filename = f"{filename_prefix}database_report.md"
+            with open(report_filename, "w") as f:
                 f.write(report)
-            print("\nDatabase report saved to: database_report.md")
+            print(f"\nDatabase report saved to: {report_filename}")
 
             # Save tables info as JSON
-            with open("tables_info.json", "w") as f:
+            json_filename = f"{filename_prefix}tables_info.json"
+            with open(json_filename, "w") as f:
                 json.dump(tables_info, f, indent=2, default=str)
-            print("Tables information saved to: tables_info.json")
+            print(f"Tables information saved to: {json_filename}")
 
             print("\n=== EXTRACTION COMPLETE ===")
             print(f"Processed {len(tables)} tables")
