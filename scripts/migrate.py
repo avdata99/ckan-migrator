@@ -9,6 +9,7 @@ import logging
 import psycopg2.extras
 from db import PSQL
 from ckan_migrate.user import import_users
+from ckan_migrate.group import import_groups
 
 # Configure logging to output to stdout
 logging.basicConfig(
@@ -31,7 +32,9 @@ def parse_args():
         )
     )
 
-    parser.add_argument('--mode', choices=['migrate', 'structure', 'all'], default='migrate', help='Migration mode (default: migrate)')
+    parser.add_argument(
+        '--mode', choices=['migrate', 'structure', 'all'], default='migrate', help='Migration mode (default: migrate)'
+    )
 
     parser.add_argument('--old-host', default='localhost', help='Old database host (default: localhost)')
     parser.add_argument('--old-port', type=int, default=9133, help='Old database port (default: 9133)')
@@ -46,7 +49,8 @@ def parse_args():
     parser.add_argument('--new-password', default='password', help='New database password (default: password)')
 
     # sample
-    # python migrate.py --mode migrate --new-host localhost --new-port 8012 --new-dbname ckan_test --new-user ckan_default --new-password pass
+    # python migrate.py --mode migrate --new-host localhost --new-port 8012 --new-dbname ckan_test \
+    #   --new-user ckan_default --new-password pass
     return parser.parse_args()
 
 
@@ -108,6 +112,7 @@ def main():
     # Capture all logs for all migrations
     final_logs = {}
     final_logs['users'] = import_users(old_db, new_db)
+    final_logs['groups'] = import_groups(old_db, new_db)
 
     print(f'Migration finished: {final_logs}')
 
