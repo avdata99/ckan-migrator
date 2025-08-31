@@ -12,6 +12,7 @@ from ckan_migrate.user import import_users
 from ckan_migrate.group import import_groups
 from ckan_migrate.vocabulary import import_vocabularies
 from ckan_migrate.tag import import_tags
+from ckan_migrate.revision import import_revisions
 
 # Configure logging to output to stdout
 logging.basicConfig(
@@ -138,6 +139,7 @@ def main():
     final_logs['groups'] = import_groups(old_db, new_db)
     final_logs['vocabularies'] = import_vocabularies(old_db, new_db)
     final_logs['tags'] = import_tags(old_db, new_db)
+    final_logs['revisions'] = import_revisions(old_db, new_db)
 
     print(f'Migration finished: {final_logs}')
 
