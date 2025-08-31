@@ -94,7 +94,7 @@ These tables contain no data or are legacy but still exist in new CKAN:
 22. **rating** (0 rows)
 23. **term_translation** (0 rows)
 24. **tracking_raw** (0 rows)
-25. **tracking_summary** (0 rows)
+25. **tracking_summary** (0 rows) This is built by the raw data, do not import
 
 ### New Tables in CKAN 2.11 (Will be created automatically)
 These tables exist in the new CKAN but not in the old one:

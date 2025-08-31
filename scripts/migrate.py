@@ -29,6 +29,7 @@ from ckan_migrate.user_following_dataset import import_user_following_datasets
 from ckan_migrate.package_relationship import import_package_relationships
 from ckan_migrate.rating import import_ratings
 from ckan_migrate.term_translation import import_term_translations
+from ckan_migrate.tracking_raw import import_tracking_raw
 
 # Configure logging to output to stdout
 logging.basicConfig(
@@ -172,6 +173,7 @@ def main():
     final_logs['package_relationships'] = import_package_relationships(old_db, new_db)
     final_logs['ratings'] = import_ratings(old_db, new_db)
     final_logs['term_translations'] = import_term_translations(old_db, new_db)
+    final_logs['tracking_raw'] = import_tracking_raw(old_db, new_db)
 
     print(f'Migration finished: {final_logs}')
 
