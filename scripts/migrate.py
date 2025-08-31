@@ -83,7 +83,28 @@ def main():
     # Handle extraction mode
     if args.mode == 'structure':
         old_db.extract_all_data(save_data=False)
-        print("Database structure extracted successfully.")
+        print("Old database structure extracted successfully.")
+
+        # Check if new database parameters are provided for structure comparison
+        if any([args.new_host != 'localhost', args.new_port != 5432, args.new_dbname != 'ckan',
+                args.new_user != 'ckan', args.new_password != 'password']):
+            new_db = PSQL(
+                host=args.new_host,
+                port=args.new_port,
+                dbname=args.new_dbname,
+                user=args.new_user,
+                password=args.new_password
+            )
+
+            if new_db.connect():
+                new_db.cursor = new_db.conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+                print("New database connection established.")
+                new_db.extract_all_data(save_data=False, filename_prefix="new_")
+                print("New database structure extracted successfully.")
+                new_db.disconnect()
+            else:
+                print("Failed to connect to new database for structure analysis.")
+
         return
     elif args.mode == 'all':
         old_db.extract_all_data(save_data=True)

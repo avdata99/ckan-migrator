@@ -59,7 +59,7 @@ def import_groups(old_db, new_db):
     return ret
 
 
-def transform_group(group, migrate_deleted=False):
+def transform_group(group, migrate_deleted=True):
     """ Get an old db object and return a dict for the new DB object
         Old groups looks like:
           {

@@ -45,6 +45,29 @@ Export all db structure from old database (do not migrate)
 python migrate.py --mode structure
 ```
 
+### Analyze both old and new database structures
+
+Export db structure from both databases for comparison (do not migrate)
+Optional: Include new database parameters to also get the structure
+of the new CKAN version database.  
+
+```bash
+python migrate.py --mode structure \
+    --new-host localhost \
+    --new-port 8012 \
+    --new-dbname ckan_test \
+    --new-user ckan_default \
+    --new-password pass
+```
+
+#### Structure sample
+
+You can see some database structure samples and diffs here:
+
+ - [2.6.2 structure](/scripts/ckan_migrate/data-sample/database_report_2.6.2.md)
+ - [2.11.3 structure](/scripts/ckan_migrate/data-sample/database_report_2.11.3.md)
+ - [2.6.2 - 2.11.3 diff](/scripts/ckan_migrate/data-sample/diff-2.6.2-2.11.3.md)
+
 ### Output Files
 
 The script generates several output files:
@@ -72,4 +95,10 @@ python migrate.py --mode migrate \
     --new-dbname ckan_test \
     --new-user ckan_default \
     --new-password pass
+```
+
+### Move static files
+
+```bash
+rsync -av --progress /old-var/lib/ckan/ /new-var/lib/ckan/
 ```
