@@ -5,11 +5,32 @@ and data.
 """
 
 import argparse
+import json
 import logging
 import psycopg2.extras
 from db import PSQL
 from ckan_migrate.user import import_users
 from ckan_migrate.group import import_groups
+from ckan_migrate.vocabulary import import_vocabularies
+from ckan_migrate.tag import import_tags
+from ckan_migrate.package import import_packages
+from ckan_migrate.resource import import_resources
+from ckan_migrate.package_extra import import_package_extras
+from ckan_migrate.package_tag import import_package_tags
+from ckan_migrate.member import import_members
+from ckan_migrate.group_extra import import_group_extras
+from ckan_migrate.resource_view import import_resource_views
+from ckan_migrate.activity import import_activities
+from ckan_migrate.activity_detail import import_activity_details
+from ckan_migrate.dashboard import import_dashboards
+from ckan_migrate.system_info import import_system_info
+from ckan_migrate.task_status import import_task_status
+from ckan_migrate.user_following_group import import_user_following_groups
+from ckan_migrate.user_following_dataset import import_user_following_datasets
+from ckan_migrate.package_relationship import import_package_relationships
+from ckan_migrate.rating import import_ratings
+from ckan_migrate.term_translation import import_term_translations
+from ckan_migrate.tracking_raw import import_tracking_raw
 
 # Configure logging to output to stdout
 logging.basicConfig(
@@ -134,8 +155,29 @@ def main():
     final_logs = {}
     final_logs['users'] = import_users(old_db, new_db)
     final_logs['groups'] = import_groups(old_db, new_db)
+    final_logs['vocabularies'] = import_vocabularies(old_db, new_db)
+    final_logs['tags'] = import_tags(old_db, new_db)
+    final_logs['packages'] = import_packages(old_db, new_db)
+    final_logs['resources'] = import_resources(old_db, new_db)
+    final_logs['package_extras'] = import_package_extras(old_db, new_db)
+    final_logs['package_tags'] = import_package_tags(old_db, new_db)
+    final_logs['members'] = import_members(old_db, new_db)
+    final_logs['group_extras'] = import_group_extras(old_db, new_db)
+    final_logs['resource_views'] = import_resource_views(old_db, new_db)
+    final_logs['activities'] = import_activities(old_db, new_db)
+    final_logs['activity_details'] = import_activity_details(old_db, new_db)
+    final_logs['dashboards'] = import_dashboards(old_db, new_db)
+    final_logs['system_info'] = import_system_info(old_db, new_db)
+    final_logs['task_status'] = import_task_status(old_db, new_db)
+    final_logs['user_following_groups'] = import_user_following_groups(old_db, new_db)
+    final_logs['user_following_datasets'] = import_user_following_datasets(old_db, new_db)
+    final_logs['package_relationships'] = import_package_relationships(old_db, new_db)
+    final_logs['ratings'] = import_ratings(old_db, new_db)
+    final_logs['term_translations'] = import_term_translations(old_db, new_db)
+    final_logs['tracking_raw'] = import_tracking_raw(old_db, new_db)
 
-    print(f'Migration finished: {final_logs}')
+    final_logs_nice = json.dumps(final_logs, indent=4)
+    print(f'Migration finished: {final_logs_nice}')
 
 
 if __name__ == "__main__":
