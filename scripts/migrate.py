@@ -12,7 +12,6 @@ from ckan_migrate.user import import_users
 from ckan_migrate.group import import_groups
 from ckan_migrate.vocabulary import import_vocabularies
 from ckan_migrate.tag import import_tags
-from ckan_migrate.revision import import_revisions
 from ckan_migrate.package import import_packages
 from ckan_migrate.resource import import_resources
 from ckan_migrate.package_extra import import_package_extras
@@ -153,7 +152,6 @@ def main():
     final_logs['groups'] = import_groups(old_db, new_db)
     final_logs['vocabularies'] = import_vocabularies(old_db, new_db)
     final_logs['tags'] = import_tags(old_db, new_db)
-    final_logs['revisions'] = import_revisions(old_db, new_db)
     final_logs['packages'] = import_packages(old_db, new_db)
     final_logs['resources'] = import_resources(old_db, new_db)
     final_logs['package_extras'] = import_package_extras(old_db, new_db)

@@ -19,6 +19,7 @@ Based on foreign key dependencies and table relationships, the following order i
 4. **tag** Uses vocabulary_id
 
 5. **revision** Referenced by most versioned tables
+   - ❌ **Will be dropped**: This table is completely removed in CKAN 2.11.3
 
 ### Primary Content Tables
 6. **package** Core datasets, references user (creator_user_id) and group (owner_org)
@@ -46,6 +47,7 @@ Based on foreign key dependencies and table relationships, the following order i
 12. **resource_view** Visualization configs for resources
 
 13. **activity** Activity stream, references users and objects
+    - ⚠️ **Deprecated fields**: `revision_id` (removed in new CKAN)
     - ✅ **New fields**: `permission_labels`
 
 14. **activity_detail** Activity details, references activities
@@ -64,32 +66,35 @@ Based on foreign key dependencies and table relationships, the following order i
 
 20. **user_following_user** User follows relationships
 
-### Revision Tables (Import after main tables)
-These tables store historical versions and should be imported after their main counterparts:
-
-21. **package_revision** (1,135 rows)
-22. **resource_revision** (7,518 rows)
-23. **package_extra_revision** (1,230 rows)
-24. **package_tag_revision** (629 rows)
-25. **member_revision** (1,585 rows)
-26. **group_revision** (273 rows)
-27. **group_extra_revision** (6 rows)
-28. **system_info_revision** (38 rows)
-
 ### Tables No Longer Required (Skip These)
 ❌ **Completely Removed Tables** - These tables exist in old CKAN but not in new CKAN:
+
+#### Authorization System (Removed)
 - **authorization_group** Authorization system was removed
 - **authorization_group_user** Authorization system was removed
-- **migrate_version** (1 row) - Old migration metadata, replaced by alembic
+
+#### Revision System (Removed in CKAN 2.11.3)
+- **revision** (6,230 rows) - Revision tracking system completely removed
+- **package_revision** (1,135 rows) - Package revision history removed
+- **resource_revision** (7,518 rows) - Resource revision history removed
+- **package_extra_revision** (1,230 rows) - Package extra revision history removed
+- **package_tag_revision** (629 rows) - Package tag revision history removed
+- **member_revision** (1,585 rows) - Member revision history removed
+- **group_revision** (273 rows) - Group revision history removed
+- **group_extra_revision** (6 rows) - Group extra revision history removed
+- **system_info_revision** (38 rows) - System info revision history removed
+- **package_relationship_revision** (0 rows) - Package relationship revision history removed
+
+#### Legacy Migration
+- **migrate_version** (1 row) - Old migration metadata, replaced by alembic, Do not import
 
 ### Empty/Legacy Tables (Optional - Low Priority)
 These tables contain no data or are legacy but still exist in new CKAN:
-29. **package_relationship** (0 rows)
-30. **package_relationship_revision** (0 rows)
-31. **rating** (0 rows)
-32. **term_translation** (0 rows)
-33. **tracking_raw** (0 rows)
-34. **tracking_summary** (0 rows)
+21. **package_relationship** (0 rows)
+22. **rating** (0 rows)
+23. **term_translation** (0 rows)
+24. **tracking_raw** (0 rows)
+25. **tracking_summary** (0 rows)
 
 ### New Tables in CKAN 2.11 (Will be created automatically)
 These tables exist in the new CKAN but not in the old one:
@@ -101,10 +106,23 @@ These tables exist in the new CKAN but not in the old one:
 - Multiple **alembic_version** tables - Migration management
 
 ### Summary of Changes
-- **3 tables completely removed**: authorization_group, authorization_group_user, migrate_version
+- **12 tables completely removed**: All revision tables + authorization tables + migrate_version
 - **1 field removed from user**: openid
-- **revision_id fields removed** from main tables (moved to revision tables only)
+- **revision_id fields removed** from main tables (revision system completely removed)
 - **webstore fields removed** from resource table
 - **Several new tables added** for enhanced functionality
 
-**Note:** Start with tables that have no foreign key dependencies and work your way up to tables that reference other tables. Always import revision tables after their corresponding main tables to maintain referential integrity. Skip completely removed tables to avoid errors.
+### ⚠️ Important Migration Notes
+
+1. **Revision System Removal**: CKAN 2.11.3 completely removes the revision tracking system. All `revision_id` fields in main tables should be ignored during migration.
+
+2. **No Historical Data**: Since revision tables are completely removed, historical change tracking will be lost in the migration. Only current data from main tables will be preserved.
+
+3. **Activity System**: The activity table is now the primary way CKAN tracks changes, replacing the old revision system.
+
+**Migration Strategy:** 
+- Import only the main tables (user, group, package, resource, etc.)
+- Skip all `*_revision` tables entirely
+- Remove `revision_id` fields from transforms
+- Skip the `revision` table itself
+- This significantly reduces migration complexity and data volume
