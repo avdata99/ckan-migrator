@@ -5,6 +5,7 @@ and data.
 """
 
 import argparse
+import json
 import logging
 import psycopg2.extras
 from db import PSQL
@@ -175,7 +176,8 @@ def main():
     final_logs['term_translations'] = import_term_translations(old_db, new_db)
     final_logs['tracking_raw'] = import_tracking_raw(old_db, new_db)
 
-    print(f'Migration finished: {final_logs}')
+    final_logs_nice = json.dumps(final_logs, indent=4)
+    print(f'Migration finished: {final_logs_nice}')
 
 
 if __name__ == "__main__":
