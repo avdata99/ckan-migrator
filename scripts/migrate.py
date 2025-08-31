@@ -27,6 +27,7 @@ from ckan_migrate.task_status import import_task_status
 from ckan_migrate.user_following_group import import_user_following_groups
 from ckan_migrate.user_following_dataset import import_user_following_datasets
 from ckan_migrate.package_relationship import import_package_relationships
+from ckan_migrate.rating import import_ratings
 
 # Configure logging to output to stdout
 logging.basicConfig(
@@ -168,6 +169,7 @@ def main():
     final_logs['user_following_groups'] = import_user_following_groups(old_db, new_db)
     final_logs['user_following_datasets'] = import_user_following_datasets(old_db, new_db)
     final_logs['package_relationships'] = import_package_relationships(old_db, new_db)
+    final_logs['ratings'] = import_ratings(old_db, new_db)
 
     print(f'Migration finished: {final_logs}')
 
