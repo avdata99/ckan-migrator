@@ -31,7 +31,7 @@ def import_users(old_db, new_db):
             ret['skipped_rows'] += 1
             continue
 
-        if new_user['email'] in emails_in_use:
+        if new_user['email'] and new_user['email'] in emails_in_use:
             # Add a hash to the email
             dup_email = new_user['email']
             parts = new_user['email'].split('@')
