@@ -61,7 +61,7 @@ def import_users(old_db, new_db):
     return ret
 
 
-def transform_user(user, migrate_deleted=False):
+def transform_user(user, migrate_deleted=True):
     """ Get an old db object and return a dict for the new DB object
         Old users looks like (it could be different in your case)
           {
