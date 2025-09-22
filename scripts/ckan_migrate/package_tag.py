@@ -39,10 +39,26 @@ def import_package_tags(old_db, new_db):
         if new_db.cursor.fetchone():
             log.warning(f" - Package tag {package_tag['id']} already exists, updating the record")
             sql = f'UPDATE "package_tag" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
-            new_db.cursor.execute(sql, tuple(new_package_tag[field] for field in fields) + (package_tag["id"],))
+            try:
+                new_db.cursor.execute(sql, tuple(new_package_tag[field] for field in fields) + (package_tag["id"],))
+            except Exception as e:
+                log.error(f" - Error updating package tag {package_tag['id']}: {e}")
+                ret['errors'].append(f"Error updating package tag {package_tag['id']}: {e}")
+                ret['skipped_rows'] += 1
+                # rollback to keep the transaction clean
+                new_db.conn.rollback()
+                continue
         else:
             sql = f'INSERT INTO "package_tag" ({', '.join(fields)}) VALUES ({placeholders})'
-            new_db.cursor.execute(sql, tuple(new_package_tag[field] for field in fields))
+            try:
+                new_db.cursor.execute(sql, tuple(new_package_tag[field] for field in fields))
+            except Exception as e:
+                log.error(f" - Error inserting package tag {package_tag['id']}: {e}")
+                ret['errors'].append(f"Error inserting package tag {package_tag['id']}: {e}")
+                ret['skipped_rows'] += 1
+                # rollback to keep the transaction clean
+                new_db.conn.rollback()
+                continue
         log.info(f" - Package tag {package_tag['id']} imported successfully.")
         ret['migrated_rows'] += 1
 

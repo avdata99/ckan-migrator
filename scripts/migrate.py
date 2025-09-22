@@ -32,11 +32,15 @@ from ckan_migrate.rating import import_ratings
 from ckan_migrate.term_translation import import_term_translations
 from ckan_migrate.tracking_raw import import_tracking_raw
 
-# Configure logging to output to stdout
+
+# Configure logging to output to both stdout and file
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('migration.log')
+    ]
 )
 
 

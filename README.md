@@ -3,17 +3,19 @@
 This repo helps with the migration of CKAN instances when you have a very old version of CKAN
 and need to upgrade to a newer version.  
 
-## Import old DB
-
-Move you CKAN DB dump to `docker/dump/db.dump`.  
-
-Start the container with `docker compose up`.  
+## Clean
 
 Ensure cleaning previous data:
 
 ```bash
 docker compose down -v
 ```
+
+## Import old DB
+
+Move you CKAN DB dump to `docker/dump/db.dump`.  
+
+Start the container with `docker compose up`.  
 
 Then, restore the database using:
 
