@@ -9,6 +9,12 @@ Move you CKAN DB dump to `docker/dump/db.dump`.
 
 Start the container with `docker compose up`.  
 
+Ensure cleaning previous data:
+
+```bash
+docker compose down -v
+```
+
 Then, restore the database using:
 
 ```bash

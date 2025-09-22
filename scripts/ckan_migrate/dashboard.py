@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_dashboards(old_db, new_db):
+def import_dashboards(old_db, new_db, valid_users_ids=None):
     """ Get all old dashboards from DB and import them
         Return a list of errors and warnings for the general log
     """
@@ -26,6 +26,10 @@ def import_dashboards(old_db, new_db):
         new_dashboard = transform_dashboard(dashboard)
         if not new_dashboard:
             log.warning(f" - Skipping dashboard for user {dashboard['user_id']}.")
+            ret['skipped_rows'] += 1
+            continue
+
+        if valid_users_ids and new_dashboard['user_id'] not in valid_users_ids:
             ret['skipped_rows'] += 1
             continue
 

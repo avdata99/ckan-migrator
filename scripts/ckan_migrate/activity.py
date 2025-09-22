@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_activities(old_db, new_db):
+def import_activities(old_db, new_db, valid_users_ids=None):
     """ Get all old activities from DB and import them
         Return a list of errors and warnings for the general log
     """
@@ -26,6 +26,10 @@ def import_activities(old_db, new_db):
         new_activity = transform_activity(activity)
         if not new_activity:
             log.warning(f" - Skipping activity {activity['id']}.")
+            ret['skipped_rows'] += 1
+            continue
+
+        if valid_users_ids and new_activity['user_id'] and new_activity['user_id'] not in valid_users_ids:
             ret['skipped_rows'] += 1
             continue
 

@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_user_following_datasets(old_db, new_db):
+def import_user_following_datasets(old_db, new_db, valid_users_ids=None):
     """ Get all old user following datasets from DB and import them
         Return a list of errors and warnings for the general log
     """
@@ -32,6 +32,14 @@ def import_user_following_datasets(old_db, new_db):
                     f" - Skipping user following dataset {user_following_dataset['follower_id']} -> "
                     f"{user_following_dataset['object_id']}."
                 )
+            )
+            ret['skipped_rows'] += 1
+            continue
+
+        if valid_users_ids and new_user_following_dataset['follower_id'] not in valid_users_ids:
+            ret['errors'].append(
+                f" - User following dataset '{user_following_dataset['follower_id']} -> {user_following_dataset['object_id']}'"
+                " ignored, the follower user does not exist in the new database."
             )
             ret['skipped_rows'] += 1
             continue

@@ -154,23 +154,30 @@ def main():
     # Capture all logs for all migrations
     final_logs = {}
     final_logs['users'] = import_users(old_db, new_db)
+    valid_users_ids = final_logs['users']['valid_users_ids']
+
     final_logs['groups'] = import_groups(old_db, new_db)
     final_logs['vocabularies'] = import_vocabularies(old_db, new_db)
     final_logs['tags'] = import_tags(old_db, new_db)
-    final_logs['packages'] = import_packages(old_db, new_db)
+
+    # Do not migrate packages with creator_user_id that does not exist in the new DB
+    final_logs['packages'] = import_packages(old_db, new_db, valid_users_ids=valid_users_ids)
+
     final_logs['resources'] = import_resources(old_db, new_db)
     final_logs['package_extras'] = import_package_extras(old_db, new_db)
     final_logs['package_tags'] = import_package_tags(old_db, new_db)
-    final_logs['members'] = import_members(old_db, new_db)
+    # Do not migrate members from non valid users
+    final_logs['members'] = import_members(old_db, new_db, valid_users_ids=valid_users_ids)
     final_logs['group_extras'] = import_group_extras(old_db, new_db)
     final_logs['resource_views'] = import_resource_views(old_db, new_db)
-    final_logs['activities'] = import_activities(old_db, new_db)
+    final_logs['activities'] = import_activities(old_db, new_db, valid_users_ids=valid_users_ids)
+    # TODO ignore details from ignored activities
     final_logs['activity_details'] = import_activity_details(old_db, new_db)
-    final_logs['dashboards'] = import_dashboards(old_db, new_db)
+    final_logs['dashboards'] = import_dashboards(old_db, new_db, valid_users_ids=valid_users_ids)
     final_logs['system_info'] = import_system_info(old_db, new_db)
     final_logs['task_status'] = import_task_status(old_db, new_db)
-    final_logs['user_following_groups'] = import_user_following_groups(old_db, new_db)
-    final_logs['user_following_datasets'] = import_user_following_datasets(old_db, new_db)
+    final_logs['user_following_groups'] = import_user_following_groups(old_db, new_db, valid_users_ids=valid_users_ids)
+    final_logs['user_following_datasets'] = import_user_following_datasets(old_db, new_db, valid_users_ids=valid_users_ids)
     final_logs['package_relationships'] = import_package_relationships(old_db, new_db)
     final_logs['ratings'] = import_ratings(old_db, new_db)
     final_logs['term_translations'] = import_term_translations(old_db, new_db)
