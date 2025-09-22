@@ -10,6 +10,7 @@ def import_activities(old_db, new_db, valid_users_ids=None):
     """
     log.info("Getting activities from old database...")
     ret = {
+        'valid_activities_ids': [],
         'total_rows': 0,
         'migrated_rows': 0,
         'skipped_rows': 0,
@@ -33,6 +34,7 @@ def import_activities(old_db, new_db, valid_users_ids=None):
             ret['skipped_rows'] += 1
             continue
 
+        ret['valid_activities_ids'].append(new_activity['id'])
         fields = new_activity.keys()
         placeholders = ', '.join(['%s'] * len(fields))
         # Check if the activity ID exists

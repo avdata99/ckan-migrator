@@ -171,8 +171,9 @@ def main():
     final_logs['group_extras'] = import_group_extras(old_db, new_db)
     final_logs['resource_views'] = import_resource_views(old_db, new_db)
     final_logs['activities'] = import_activities(old_db, new_db, valid_users_ids=valid_users_ids)
-    # TODO ignore details from ignored activities
-    final_logs['activity_details'] = import_activity_details(old_db, new_db)
+    valid_activities_ids = final_logs['activities']['valid_activities_ids']
+    final_logs['activity_details'] = import_activity_details(old_db, new_db, valid_activities_ids=valid_activities_ids)
+
     final_logs['dashboards'] = import_dashboards(old_db, new_db, valid_users_ids=valid_users_ids)
     final_logs['system_info'] = import_system_info(old_db, new_db)
     final_logs['task_status'] = import_task_status(old_db, new_db)
