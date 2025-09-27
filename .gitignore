@@ -1,8 +1,9 @@
 docker/dump/db.dump
+docker/dump/db*.dump
 scripts/database_report.md
 scripts/tables_info.json
 scripts/extracted_data/
-
+scripts/extracted_data*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

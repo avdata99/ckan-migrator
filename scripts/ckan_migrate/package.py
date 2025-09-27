@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_packages(old_db, new_db):
+def import_packages(old_db, new_db, valid_users_ids=None):
     """ Get all old packages from DB and import them
         Return a list of errors and warnings for the general log
     """
@@ -39,6 +39,14 @@ def import_packages(old_db, new_db):
                 f" - Package '{original_name}' has a duplicate name."
                 f" New name: {new_package['name']} (old: {original_name})"
             )
+
+        if valid_users_ids and new_package['creator_user_id'] not in valid_users_ids:
+            ret['errors'].append(
+                f" - Package '{new_package['name']}' ignored, has a creator_user_id '{new_package['creator_user_id']}'"
+                " that does not exist in the new database. Setting it to None."
+            )
+            ret['skipped_rows'] += 1
+            continue
 
         fields = new_package.keys()
         placeholders = ', '.join(['%s'] * len(fields))

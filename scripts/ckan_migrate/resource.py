@@ -37,10 +37,26 @@ def import_resources(old_db, new_db):
         if new_db.cursor.fetchone():
             log.warning(f" - Resource {resource['id']} already exists, updating the record")
             sql = f'UPDATE "resource" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
-            new_db.cursor.execute(sql, tuple(new_resource[field] for field in fields) + (resource["id"],))
+            try:
+                new_db.cursor.execute(sql, tuple(new_resource[field] for field in fields) + (resource["id"],))
+            except Exception as e:
+                log.error(f" - Error updating resource {resource['id']}: {e}")
+                ret['errors'].append(f"Error updating resource {resource['id']}: {e}")
+                ret['skipped_rows'] += 1
+                # rollback to keep the transaction clean
+                new_db.conn.rollback()
+                continue
         else:
             sql = f'INSERT INTO "resource" ({', '.join(fields)}) VALUES ({placeholders})'
-            new_db.cursor.execute(sql, tuple(new_resource[field] for field in fields))
+            try:
+                new_db.cursor.execute(sql, tuple(new_resource[field] for field in fields))
+            except Exception as e:
+                log.error(f" - Error inserting resource {resource['id']}: {e}")
+                ret['errors'].append(f"Error inserting resource {resource['id']}: {e}")
+                ret['skipped_rows'] += 1
+                # rollback to keep the transaction clean
+                new_db.conn.rollback()
+                continue
         log.info(f" - Resource {resource['id']} imported successfully.")
         ret['migrated_rows'] += 1
 

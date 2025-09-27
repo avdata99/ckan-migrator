@@ -38,13 +38,29 @@ def import_resource_views(old_db, new_db):
         if new_db.cursor.fetchone():
             log.warning(f" - Resource view {resource_view['id']} already exists, updating the record")
             sql = f'UPDATE "resource_view" SET ({", ".join(quoted_fields)}) = ({placeholders}) WHERE id= %s'
-            new_db.cursor.execute(
-                sql,
-                tuple(new_resource_view[field.strip('"')] for field in quoted_fields) + (resource_view["id"],)
-            )
+            try:
+                new_db.cursor.execute(
+                    sql,
+                    tuple(new_resource_view[field.strip('"')] for field in quoted_fields) + (resource_view["id"],)
+                )
+            except Exception as e:
+                log.error(f" - Error updating resource view {resource_view['id']}: {e}")
+                ret['errors'].append(f"Error updating resource view {resource_view['id']}: {e}")
+                ret['skipped_rows'] += 1
+                # rollback to keep the transaction clean
+                new_db.conn.rollback()
+                continue
         else:
             sql = f'INSERT INTO "resource_view" ({", ".join(quoted_fields)}) VALUES ({placeholders})'
-            new_db.cursor.execute(sql, tuple(new_resource_view[field.strip('"')] for field in quoted_fields))
+            try:
+                new_db.cursor.execute(sql, tuple(new_resource_view[field.strip('"')] for field in quoted_fields))
+            except Exception as e:
+                log.error(f" - Error inserting resource view {resource_view['id']}: {e}")
+                ret['errors'].append(f"Error inserting resource view {resource_view['id']}: {e}")
+                ret['skipped_rows'] += 1
+                # rollback to keep the transaction clean
+                new_db.conn.rollback()
+                continue
         log.info(f" - Resource view {resource_view['id']} imported successfully.")
         ret['migrated_rows'] += 1
 

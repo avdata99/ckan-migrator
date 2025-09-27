@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_members(old_db, new_db):
+def import_members(old_db, new_db, valid_users_ids=None):
     """ Get all old members from DB and import them
         Return a list of errors and warnings for the general log
     """
@@ -26,6 +26,15 @@ def import_members(old_db, new_db):
         new_member = transform_member(member)
         if not new_member:
             log.warning(f" - Skipping member {member['id']}.")
+            ret['skipped_rows'] += 1
+            continue
+
+        # if table is "user", check if the user_id exists in the new DB
+        if member['table_name'] == 'user' and valid_users_ids and member['table_id'] not in valid_users_ids:
+            ret['errors'].append(
+                f" - Member '{member['id']}' ignored, has a table_id '{member['table_id']}'"
+                " that does not exist in the new database. Setting it to None."
+            )
             ret['skipped_rows'] += 1
             continue
 

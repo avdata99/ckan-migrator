@@ -4,12 +4,13 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_activities(old_db, new_db):
+def import_activities(old_db, new_db, valid_users_ids=None):
     """ Get all old activities from DB and import them
         Return a list of errors and warnings for the general log
     """
     log.info("Getting activities from old database...")
     ret = {
+        'valid_activities_ids': [],
         'total_rows': 0,
         'migrated_rows': 0,
         'skipped_rows': 0,
@@ -29,6 +30,11 @@ def import_activities(old_db, new_db):
             ret['skipped_rows'] += 1
             continue
 
+        if valid_users_ids and new_activity['user_id'] and new_activity['user_id'] not in valid_users_ids:
+            ret['skipped_rows'] += 1
+            continue
+
+        ret['valid_activities_ids'].append(new_activity['id'])
         fields = new_activity.keys()
         placeholders = ', '.join(['%s'] * len(fields))
         # Check if the activity ID exists

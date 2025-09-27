@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_activity_details(old_db, new_db):
+def import_activity_details(old_db, new_db, valid_activities_ids=None):
     """ Get all old activity details from DB and import them
         Return a list of errors and warnings for the general log
     """
@@ -26,6 +26,10 @@ def import_activity_details(old_db, new_db):
         new_activity_detail = transform_activity_detail(activity_detail)
         if not new_activity_detail:
             log.warning(f" - Skipping activity detail {activity_detail['id']}.")
+            ret['skipped_rows'] += 1
+            continue
+
+        if valid_activities_ids and new_activity_detail['activity_id'] not in valid_activities_ids:
             ret['skipped_rows'] += 1
             continue
 

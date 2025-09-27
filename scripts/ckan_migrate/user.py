@@ -10,6 +10,8 @@ def import_users(old_db, new_db):
     """
     log.info("Getting users from old database...")
     ret = {
+        'valid_users_ids': [],
+        'valid_users_names': [],
         'total_rows': 0,
         'migrated_rows': 0,
         'skipped_rows': 0,
@@ -31,6 +33,8 @@ def import_users(old_db, new_db):
             ret['skipped_rows'] += 1
             continue
 
+        ret['valid_users_ids'].append(new_user['id'])
+        ret['valid_users_names'].append(new_user['name'])
         if new_user['email'] and new_user['email'] in emails_in_use:
             # Add a hash to the email
             dup_email = new_user['email']
