@@ -31,6 +31,7 @@ from ckan_migrate.package_relationship import import_package_relationships
 from ckan_migrate.rating import import_ratings
 from ckan_migrate.term_translation import import_term_translations
 from ckan_migrate.tracking_raw import import_tracking_raw
+from ckan_migrate import import_users, import_groups, import_organizations
 
 
 # Configure logging to output to both stdout and file
@@ -57,9 +58,8 @@ def parse_args():
         )
     )
 
-    parser.add_argument(
-        '--mode', choices=['migrate', 'structure', 'all'], default='migrate', help='Migration mode (default: migrate)'
-    )
+    parser.add_argument('--mode', choices=['migrate', 'structure', 'all'], default='migrate',
+                        help='Migration mode (default: migrate)')
 
     parser.add_argument('--old-host', default='localhost', help='Old database host (default: localhost)')
     parser.add_argument('--old-port', type=int, default=9133, help='Old database port (default: 9133)')
@@ -73,9 +73,15 @@ def parse_args():
     parser.add_argument('--new-user', default='ckan', help='New database user (default: ckan)')
     parser.add_argument('--new-password', default='password', help='New database password (default: password)')
 
+    parser.add_argument(
+        '--steps',
+        default='users,organizations,groups',
+        help='Comma-separated steps to run in migrate mode. Options: users,organizations,groups'
+    )
+
     # sample
-    # python migrate.py --mode migrate --new-host localhost --new-port 8012 --new-dbname ckan_test \
-    #   --new-user ckan_default --new-password pass
+    # python migrate.py --mode migrate --new-host localhost --new-port 8012 --new-dbname ckan_test
+    # --new-user ckan_default --new-password pass
     return parser.parse_args()
 
 
@@ -159,6 +165,26 @@ def main():
     final_logs = {}
     final_logs['users'] = import_users(old_db, new_db)
     valid_users_ids = final_logs['users']['valid_users_ids']
+    steps = [s.strip().lower() for s in (args.steps or '').split(',') if s.strip()]
+
+    try:
+        if 'users' in steps:
+            final_logs['users'] = import_users(old_db, new_db)
+            print("Users migrated.")
+
+        if 'groups' in steps:
+            final_logs['groups_orgs'] = import_groups(old_db, new_db)
+            print("Organizations & Groups migrated.")
+
+        if 'organizations' in steps:
+            final_logs['organizations'] = import_organizations(old_db, new_db)
+            print("Organizations migrated.")
+    finally:
+        # cierre ordenado
+        try:
+            new_db.disconnect()
+        finally:
+            old_db.disconnect()
 
     final_logs['groups'] = import_groups(old_db, new_db)
     final_logs['vocabularies'] = import_vocabularies(old_db, new_db)

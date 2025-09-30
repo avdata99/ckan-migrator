@@ -89,12 +89,12 @@ def transform_user(user, migrate_deleted=True):
     new_user = {
         'id': user['id'],
         'name': user['name'],
-        'email': user['email'],
-        'about': user['about'],
-        'created': user['created'],
-        'fullname': user['fullname'],
-        'sysadmin': user['sysadmin'],
-        'state': user['state']
+        'email': user.get('email'),
+        'about': user.get('about'),
+        'created': user.get('created'),
+        'fullname': user.get('fullname'),
+        'sysadmin': user.get('sysadmin', False),
+        'state': user.get('state', 'active')
     }
 
     return new_user
