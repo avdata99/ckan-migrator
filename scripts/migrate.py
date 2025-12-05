@@ -7,6 +7,7 @@ and data.
 import argparse
 import json
 import logging
+import pandas as pd
 import psycopg2.extras
 from db import PSQL
 from ckan_migrate.user import import_users
@@ -58,7 +59,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        '--mode', choices=['migrate', 'structure', 'all'], default='migrate', help='Migration mode (default: migrate)'
+        '--mode', choices=['migrate', 'structure', 'extract'], default='migrate', help='Migration mode (default: migrate)'
     )
 
     parser.add_argument('--old-host', default='localhost', help='Old database host (default: localhost)')
@@ -79,6 +80,55 @@ def parse_args():
     return parser.parse_args()
 
 
+def get_old_db_connection(args):
+    """
+    Establish connection to the old database.
+    """
+    print(f"Connecting to OLD_DB: {args.old_user}@{args.old_host}:{args.old_port}/{args.old_dbname}")
+    old_db = PSQL(
+        host=args.old_host,
+        port=args.old_port,
+        dbname=args.old_dbname,
+        user=args.old_user,
+        password=args.old_password
+    )
+    if not old_db.connect():
+        raise ConnectionError("Failed to connect to the old database.")
+    print("Old database connection established.")
+    old_db.cursor = old_db.conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    return old_db
+
+
+def load_from_csv(csv_path):
+    """ Load CSV files like the ones extracted with extract mode
+        and return a list of dicts similar to the ones returned by
+        RealDictCursor.
+    """
+    extracted_data_folder = 'extracted_data'
+    csv_path = f"{extracted_data_folder}/{csv_path}"
+    df = pd.read_csv(csv_path)
+
+    # Convert DataFrame to list of dicts (similar to RealDictCursor output)
+    records = df.to_dict('records')
+
+    # Handle type conversions from CSV strings
+    for record in records:
+        # Convert ANY boolean strings to actual booleans
+        for key, value in record.items():
+            if isinstance(value, str):
+                if value.lower() == 'true':
+                    record[key] = True
+                elif value.lower() == 'false':
+                    record[key] = False
+
+        # Handle NaN values (pandas represents NULL as NaN)
+        for key, value in record.items():
+            if pd.isna(value):
+                record[key] = None
+
+    return records
+
+
 def main():
     """
     Main function to run the database extraction.
@@ -87,26 +137,12 @@ def main():
 
     print("CKAN Database Migrator")
     print("======================")
-    print(f"Connecting to OLD_DB: {args.old_user}@{args.old_host}:{args.old_port}/{args.old_dbname}")
-    # Create old_db instance with provided arguments
-    old_db = PSQL(
-        host=args.old_host,
-        port=args.old_port,
-        dbname=args.old_dbname,
-        user=args.old_user,
-        password=args.old_password
-    )
-    # Test connection first
-    if not old_db.connect():
-        print("Failed to connect to database.")
-        return
-
-    # Configure cursor to return dictionaries
-    old_db.cursor = old_db.conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    print("Old database connection established.")
 
     # Handle extraction mode
     if args.mode == 'structure':
+        # Just extract the old database structure
+        # and optionally compare with new database structure
+        old_db = get_old_db_connection(args)
         old_db.extract_all_data(save_data=False)
         print("Old database structure extracted successfully.")
 
@@ -131,12 +167,18 @@ def main():
                 print("Failed to connect to new database for structure analysis.")
 
         return
-    elif args.mode == 'all':
+    elif args.mode == 'extract':
+        # Just extract all data from old database and save to files
+        old_db = get_old_db_connection(args)
         old_db.extract_all_data(save_data=True)
         print("All database data extracted successfully.")
         return
+    elif args.mode != 'migrate':
+        print(f"Unknown mode: {args.mode}")
+        return
 
     # The user wants to migrate to a new db
+    # We'll use the CSV files extracted previously with extract mode
     print(f"Connecting to NEW_DB: {args.new_user}@{args.new_host}:{args.new_port}/{args.new_dbname}")
     # Create new_db instance with provided arguments
     new_db = PSQL(
@@ -157,36 +199,36 @@ def main():
 
     # Capture all logs for all migrations
     final_logs = {}
-    final_logs['users'] = import_users(old_db, new_db)
+    final_logs['users'] = import_users(load_from_csv("user.csv"), new_db)
     valid_users_ids = final_logs['users']['valid_users_ids']
 
-    final_logs['groups'] = import_groups(old_db, new_db)
-    final_logs['vocabularies'] = import_vocabularies(old_db, new_db)
-    final_logs['tags'] = import_tags(old_db, new_db)
+    final_logs['groups'] = import_groups(load_from_csv("group.csv"), new_db)
+    final_logs['vocabularies'] = import_vocabularies(load_from_csv("vocabulary.csv"), new_db)
+    final_logs['tags'] = import_tags(load_from_csv("tag.csv"), new_db)
 
     # Do not migrate packages with creator_user_id that does not exist in the new DB
-    final_logs['packages'] = import_packages(old_db, new_db, valid_users_ids=valid_users_ids)
+    final_logs['packages'] = import_packages(load_from_csv("package.csv"), new_db, valid_users_ids=valid_users_ids)
 
-    final_logs['resources'] = import_resources(old_db, new_db)
-    final_logs['package_extras'] = import_package_extras(old_db, new_db)
-    final_logs['package_tags'] = import_package_tags(old_db, new_db)
+    final_logs['resources'] = import_resources(load_from_csv("resource.csv"), new_db)
+    final_logs['package_extras'] = import_package_extras(load_from_csv("package_extra.csv"), new_db)
+    final_logs['package_tags'] = import_package_tags(load_from_csv("package_tag.csv"), new_db)
     # Do not migrate members from non valid users
-    final_logs['members'] = import_members(old_db, new_db, valid_users_ids=valid_users_ids)
-    final_logs['group_extras'] = import_group_extras(old_db, new_db)
-    final_logs['resource_views'] = import_resource_views(old_db, new_db)
-    final_logs['activities'] = import_activities(old_db, new_db, valid_users_ids=valid_users_ids)
+    final_logs['members'] = import_members(load_from_csv("member.csv"), new_db, valid_users_ids=valid_users_ids)
+    final_logs['group_extras'] = import_group_extras(load_from_csv("group_extra.csv"), new_db)
+    final_logs['resource_views'] = import_resource_views(load_from_csv("resource_view.csv"), new_db)
+    final_logs['activities'] = import_activities(load_from_csv("activity.csv"), new_db, valid_users_ids=valid_users_ids)
     valid_activities_ids = final_logs['activities']['valid_activities_ids']
-    final_logs['activity_details'] = import_activity_details(old_db, new_db, valid_activities_ids=valid_activities_ids)
+    final_logs['activity_details'] = import_activity_details(load_from_csv("activity_detail.csv"), new_db, valid_activities_ids=valid_activities_ids)
 
-    final_logs['dashboards'] = import_dashboards(old_db, new_db, valid_users_ids=valid_users_ids)
-    final_logs['system_info'] = import_system_info(old_db, new_db)
-    final_logs['task_status'] = import_task_status(old_db, new_db)
-    final_logs['user_following_groups'] = import_user_following_groups(old_db, new_db, valid_users_ids=valid_users_ids)
-    final_logs['user_following_datasets'] = import_user_following_datasets(old_db, new_db, valid_users_ids=valid_users_ids)
-    final_logs['package_relationships'] = import_package_relationships(old_db, new_db)
-    final_logs['ratings'] = import_ratings(old_db, new_db)
-    final_logs['term_translations'] = import_term_translations(old_db, new_db)
-    final_logs['tracking_raw'] = import_tracking_raw(old_db, new_db)
+    final_logs['dashboards'] = import_dashboards(load_from_csv("dashboard.csv"), new_db, valid_users_ids=valid_users_ids)
+    final_logs['system_info'] = import_system_info(load_from_csv("system_info.csv"), new_db)
+    final_logs['task_status'] = import_task_status(load_from_csv("task_status.csv"), new_db)
+    final_logs['user_following_groups'] = import_user_following_groups(load_from_csv("user_following_group.csv"), new_db, valid_users_ids=valid_users_ids)
+    final_logs['user_following_datasets'] = import_user_following_datasets(load_from_csv("user_following_dataset.csv"), new_db, valid_users_ids=valid_users_ids)
+    final_logs['package_relationships'] = import_package_relationships(load_from_csv("package_relationship.csv"), new_db)
+    final_logs['ratings'] = import_ratings(load_from_csv("rating.csv"), new_db)
+    final_logs['term_translations'] = import_term_translations(load_from_csv("term_translation.csv"), new_db)
+    final_logs['tracking_raw'] = import_tracking_raw(load_from_csv("tracking_raw.csv"), new_db)
 
     final_logs_nice = json.dumps(final_logs, indent=4)
     print(f'Migration finished: {final_logs_nice}')
