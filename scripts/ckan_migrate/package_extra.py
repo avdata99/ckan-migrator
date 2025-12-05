@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_package_extras(old_db, new_db):
-    """ Get all old package extras from DB and import them
+def import_package_extras(old_package_extras, new_db):
+    """ Get all old package extras from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting package extras from old database...")
+    log.info("Importing package extras...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_package_extras(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "package_extra"'
-    old_db.cursor.execute(query)
-    package_extras = old_db.cursor.fetchall()
 
-    for package_extra in package_extras:
+    for package_extra in old_package_extras:
         ret['total_rows'] += 1
         log.info(f"Importing package extra: {package_extra['id']} (key: {package_extra['key']})")
         new_package_extra = transform_package_extra(package_extra)

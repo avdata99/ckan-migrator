@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_ratings(old_db, new_db):
-    """ Get all old ratings from DB and import them
+def import_ratings(old_ratings, new_db):
+    """ Get all old ratings from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting ratings from old database...")
+    log.info("Importing ratings...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_ratings(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "rating" ORDER BY created'
-    old_db.cursor.execute(query)
-    ratings = old_db.cursor.fetchall()
 
-    for rating in ratings:
+    for rating in old_ratings:
         ret['total_rows'] += 1
         log.info(f"Importing rating: {rating['id']} (package: {rating['package_id']})")
         new_rating = transform_rating(rating)

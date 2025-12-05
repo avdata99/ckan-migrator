@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_group_extras(old_db, new_db):
-    """ Get all old group extras from DB and import them
+def import_group_extras(old_group_extras, new_db):
+    """ Get all old group extras from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting group extras from old database...")
+    log.info("Importing group extras...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_group_extras(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "group_extra"'
-    old_db.cursor.execute(query)
-    group_extras = old_db.cursor.fetchall()
 
-    for group_extra in group_extras:
+    for group_extra in old_group_extras:
         ret['total_rows'] += 1
         log.info(f"Importing group extra: {group_extra['id']} (key: {group_extra['key']})")
         new_group_extra = transform_group_extra(group_extra)

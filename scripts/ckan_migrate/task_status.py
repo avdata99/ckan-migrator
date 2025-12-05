@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_task_status(old_db, new_db):
-    """ Get all old task status from DB and import them
+def import_task_status(old_task_statuses, new_db):
+    """ Get all old task status from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting task status from old database...")
+    log.info("Importing task status...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_task_status(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "task_status" ORDER BY last_updated'
-    old_db.cursor.execute(query)
-    task_statuses = old_db.cursor.fetchall()
 
-    for task_status in task_statuses:
+    for task_status in old_task_statuses:
         ret['total_rows'] += 1
         log.info(f"Importing task status: {task_status['id']} (type: {task_status['task_type']})")
         new_task_status = transform_task_status(task_status)

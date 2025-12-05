@@ -4,11 +4,9 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_vocabularies(old_db, new_db):
-    """ Get all old vocabularies from DB and import them
-        Return a list of errors and warnings for the general log
-    """
-    log.info("Getting vocabularies from old database...")
+def import_vocabularies(old_vocabularies, new_db):
+    """ Get all old vocabularies from CSV and import them """
+    log.info("Importing vocabularies...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,13 +14,10 @@ def import_vocabularies(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "vocabulary"'
-    old_db.cursor.execute(query)
-    vocabularies = old_db.cursor.fetchall()
 
     # Handle potential duplicate names
     names_in_use = []
-    for vocabulary in vocabularies:
+    for vocabulary in old_vocabularies:
         ret['total_rows'] += 1
         log.info(f"Importing vocabulary: {vocabulary['name']}")
         new_vocabulary = transform_vocabulary(vocabulary)

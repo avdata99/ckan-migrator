@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_dashboards(old_db, new_db, valid_users_ids=None):
-    """ Get all old dashboards from DB and import them
+def import_dashboards(old_dashboards, new_db, valid_users_ids=None):
+    """ Get all old dashboards from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting dashboards from old database...")
+    log.info("Importing dashboards...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_dashboards(old_db, new_db, valid_users_ids=None):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "dashboard"'
-    old_db.cursor.execute(query)
-    dashboards = old_db.cursor.fetchall()
 
-    for dashboard in dashboards:
+    for dashboard in old_dashboards:
         ret['total_rows'] += 1
         log.info(f"Importing dashboard for user: {dashboard['user_id']}")
         new_dashboard = transform_dashboard(dashboard)

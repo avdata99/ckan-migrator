@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_package_tags(old_db, new_db):
-    """ Get all old package tags from DB and import them
+def import_package_tags(old_package_tags, new_db):
+    """ Get all old package tags from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting package tags from old database...")
+    log.info("Importing package tags...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_package_tags(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "package_tag"'
-    old_db.cursor.execute(query)
-    package_tags = old_db.cursor.fetchall()
 
-    for package_tag in package_tags:
+    for package_tag in old_package_tags:
         ret['total_rows'] += 1
         log.info(
             f"Importing package tag: {package_tag['id']} (package: {package_tag['package_id']}, tag: {package_tag['tag_id']})"

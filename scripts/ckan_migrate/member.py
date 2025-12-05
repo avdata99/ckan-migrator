@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_members(old_db, new_db, valid_users_ids=None):
-    """ Get all old members from DB and import them
+def import_members(old_members, new_db, valid_users_ids=None):
+    """ Get all old members from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting members from old database...")
+    log.info("Importing members...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_members(old_db, new_db, valid_users_ids=None):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "member"'
-    old_db.cursor.execute(query)
-    members = old_db.cursor.fetchall()
 
-    for member in members:
+    for member in old_members:
         ret['total_rows'] += 1
         log.info(f"Importing member: {member['id']} (table: {member['table_name']}, capacity: {member['capacity']})")
         new_member = transform_member(member)

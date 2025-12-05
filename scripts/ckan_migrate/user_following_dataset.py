@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_user_following_datasets(old_db, new_db, valid_users_ids=None):
-    """ Get all old user following datasets from DB and import them
+def import_user_following_datasets(old_user_following_datasets, new_db, valid_users_ids=None):
+    """ Get all old user following datasets from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting user following datasets from old database...")
+    log.info("Importing user following datasets...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_user_following_datasets(old_db, new_db, valid_users_ids=None):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "user_following_dataset" ORDER BY datetime'
-    old_db.cursor.execute(query)
-    user_following_datasets = old_db.cursor.fetchall()
 
-    for user_following_dataset in user_following_datasets:
+    for user_following_dataset in old_user_following_datasets:
         ret['total_rows'] += 1
         log.info(
             f"Importing user fo.ing dataset: {user_following_dataset['follower_id']} -> {user_following_dataset['object_id']}"

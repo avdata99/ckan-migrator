@@ -4,24 +4,19 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_groups(old_db, new_db):
-    """ Get all old groups from DB and import them
-        Return a list of errors and warnings for the general log
-    """
-    log.info("Getting groups from old database...")
+def import_groups(old_groups, new_db):
+    """ Get all old groups from CSV and import them """
+    log.info("Importing groups...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
         'skipped_rows': 0,
         'warnings': [],
-        'errors': []
+        'errors': [],
+        'valid_groups_ids': []  # Initialize valid_groups_ids here
     }
-    query = 'SELECT * from "group"'
-    old_db.cursor.execute(query)
-    groups = old_db.cursor.fetchall()
-    # Handle potential duplicate names
     names_in_use = []
-    for group in groups:
+    for group in old_groups:
         ret['total_rows'] += 1
         log.info(f"Importing group: {group['name']}")
         new_group = transform_group(group)
@@ -38,6 +33,7 @@ def import_groups(old_db, new_db):
                 f" - Group '{original_name}' has a duplicate name."
                 f" New name: {new_group['name']} (old: {original_name})"
             )
+        ret['valid_groups_ids'].append(new_group['id'])
 
         fields = new_group.keys()
         placeholders = ', '.join(['%s'] * len(fields))

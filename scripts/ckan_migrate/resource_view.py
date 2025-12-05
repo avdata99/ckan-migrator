@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_resource_views(old_db, new_db):
-    """ Get all old resource views from DB and import them
+def import_resource_views(old_resource_views, new_db):
+    """ Get all old resource views from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting resource views from old database...")
+    log.info("Importing resource views...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_resource_views(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "resource_view" ORDER BY "order"'
-    old_db.cursor.execute(query)
-    resource_views = old_db.cursor.fetchall()
 
-    for resource_view in resource_views:
+    for resource_view in old_resource_views:
         ret['total_rows'] += 1
         log.info(f"Importing resource view: {resource_view['id']} (type: {resource_view['view_type']})")
         new_resource_view = transform_resource_view(resource_view)
