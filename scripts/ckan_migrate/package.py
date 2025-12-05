@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_packages(old_db, new_db, valid_users_ids=None):
-    """ Get all old packages from DB and import them
+def import_packages(old_packages, new_db, valid_users_ids=None):
+    """ Get all old packages from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting packages from old database...")
+    log.info("Importing packages...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,13 +16,10 @@ def import_packages(old_db, new_db, valid_users_ids=None):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "package" ORDER BY metadata_created'
-    old_db.cursor.execute(query)
-    packages = old_db.cursor.fetchall()
 
     # Handle potential duplicate names
     names_in_use = []
-    for package in packages:
+    for package in old_packages:
         ret['total_rows'] += 1
         log.info(f"Importing package: {package['name']}")
         new_package = transform_package(package)

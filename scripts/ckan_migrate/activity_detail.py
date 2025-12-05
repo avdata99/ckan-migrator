@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_activity_details(old_db, new_db, valid_activities_ids=None):
-    """ Get all old activity details from DB and import them
+def import_activity_details(old_activity_details, new_db, valid_activities_ids=None):
+    """ Get all old activity details from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting activity details from old database...")
+    log.info("Importing activity details...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_activity_details(old_db, new_db, valid_activities_ids=None):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "activity_detail" ORDER BY activity_id'
-    old_db.cursor.execute(query)
-    activity_details = old_db.cursor.fetchall()
 
-    for activity_detail in activity_details:
+    for activity_detail in old_activity_details:
         ret['total_rows'] += 1
         log.info(f"Importing activity detail: {activity_detail['id']} (activity: {activity_detail['activity_id']})")
         new_activity_detail = transform_activity_detail(activity_detail)

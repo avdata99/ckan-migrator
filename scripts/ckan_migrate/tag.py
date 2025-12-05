@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_tags(old_db, new_db):
-    """ Get all old tags from DB and import them
+def import_tags(old_tags, new_db):
+    """ Get all old tags from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting tags from old database...")
+    log.info("Importing tags...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,13 +16,10 @@ def import_tags(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "tag"'
-    old_db.cursor.execute(query)
-    tags = old_db.cursor.fetchall()
 
     # Handle potential duplicate names
     names_in_use = []
-    for tag in tags:
+    for tag in old_tags:
         ret['total_rows'] += 1
         log.info(f"Importing tag: {tag['name']}")
         new_tag = transform_tag(tag)

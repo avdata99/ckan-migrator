@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_tracking_raw(old_db, new_db):
+def import_tracking_raw(old_tracking, new_db):
     """ Get all old tracking raw from DB and import them
         Return a list of errors and warnings for the general log
     """
@@ -16,11 +16,7 @@ def import_tracking_raw(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "tracking_raw" ORDER BY access_timestamp'
-    old_db.cursor.execute(query)
-    tracking_raws = old_db.cursor.fetchall()
-
-    for tracking_raw in tracking_raws:
+    for tracking_raw in old_tracking:
         ret['total_rows'] += 1
         log.info(f"Importing tracking raw: {tracking_raw['user_key']} ({tracking_raw['tracking_type']})")
         new_tracking_raw = transform_tracking_raw(tracking_raw)

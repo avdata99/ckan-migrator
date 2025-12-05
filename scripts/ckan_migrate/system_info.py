@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_system_info(old_db, new_db):
-    """ Get all old system info from DB and import them
+def import_system_info(old_system_infos, new_db):
+    """ Get all old system info from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting system info from old database...")
+    log.info("Importing system info...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_system_info(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "system_info" ORDER BY id'
-    old_db.cursor.execute(query)
-    system_infos = old_db.cursor.fetchall()
 
-    for system_info in system_infos:
+    for system_info in old_system_infos:
         ret['total_rows'] += 1
         log.info(f"Importing system info: {system_info['key']}")
         new_system_info = transform_system_info(system_info)

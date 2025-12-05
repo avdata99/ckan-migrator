@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_activities(old_db, new_db, valid_users_ids=None):
-    """ Get all old activities from DB and import them
+def import_activities(old_activities, new_db, valid_users_ids=None):
+    """ Get all old activities from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting activities from old database...")
+    log.info("Importing activities...")
     ret = {
         'valid_activities_ids': [],
         'total_rows': 0,
@@ -17,11 +17,8 @@ def import_activities(old_db, new_db, valid_users_ids=None):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "activity" ORDER BY timestamp'
-    old_db.cursor.execute(query)
-    activities = old_db.cursor.fetchall()
 
-    for activity in activities:
+    for activity in old_activities:
         ret['total_rows'] += 1
         log.info(f"Importing activity: {activity['id']} (type: {activity['activity_type']})")
         new_activity = transform_activity(activity)
@@ -37,16 +34,8 @@ def import_activities(old_db, new_db, valid_users_ids=None):
         ret['valid_activities_ids'].append(new_activity['id'])
         fields = new_activity.keys()
         placeholders = ', '.join(['%s'] * len(fields))
-        # Check if the activity ID exists
-        sql = 'SELECT * FROM "activity" WHERE id = %s'
-        new_db.cursor.execute(sql, (activity["id"],))
-        if new_db.cursor.fetchone():
-            log.warning(f" - Activity {activity['id']} already exists, updating the record")
-            sql = f'UPDATE "activity" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
-            new_db.cursor.execute(sql, tuple(new_activity[field] for field in fields) + (activity["id"],))
-        else:
-            sql = f'INSERT INTO "activity" ({', '.join(fields)}) VALUES ({placeholders})'
-            new_db.cursor.execute(sql, tuple(new_activity[field] for field in fields))
+        sql = f'INSERT INTO "activity" ({", ".join(fields)}) VALUES ({placeholders})'
+        new_db.cursor.execute(sql, tuple(new_activity[field] for field in fields))
         log.info(f" - Activity {activity['id']} imported successfully.")
         ret['migrated_rows'] += 1
 

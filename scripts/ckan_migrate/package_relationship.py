@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_package_relationships(old_db, new_db):
-    """ Get all old package relationships from DB and import them
+def import_package_relationships(old_package_relationships, new_db):
+    """ Get all old package relationships from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting package relationships from old database...")
+    log.info("Importing package relationships...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_package_relationships(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "package_relationship"'
-    old_db.cursor.execute(query)
-    package_relationships = old_db.cursor.fetchall()
 
-    for package_relationship in package_relationships:
+    for package_relationship in old_package_relationships:
         ret['total_rows'] += 1
         log.info(f"Importing package relationship: {package_relationship['id']} ({package_relationship['type']})")
         new_package_relationship = transform_package_relationship(package_relationship)

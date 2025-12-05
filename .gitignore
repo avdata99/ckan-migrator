@@ -1,9 +1,12 @@
 docker/dump/db.dump
 docker/dump/db*.dump
-scripts/database_report.md
+scripts/database_report*.md
 scripts/tables_info.json
 scripts/extracted_data/
 scripts/extracted_data*/
+scripts/extras/
+# Allow customization scripts like user.py to postprocess migration data
+scripts/ckan_migrate/customize/*.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -4,11 +4,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_resources(old_db, new_db):
-    """ Get all old resources from DB and import them
+def import_resources(old_resources, new_db):
+    """ Get all old resources from CSV and import them
         Return a list of errors and warnings for the general log
     """
-    log.info("Getting resources from old database...")
+    log.info("Importing resources...")
     ret = {
         'total_rows': 0,
         'migrated_rows': 0,
@@ -16,11 +16,8 @@ def import_resources(old_db, new_db):
         'warnings': [],
         'errors': []
     }
-    query = 'SELECT * from "resource" ORDER BY created'
-    old_db.cursor.execute(query)
-    resources = old_db.cursor.fetchall()
 
-    for resource in resources:
+    for resource in old_resources:
         ret['total_rows'] += 1
         log.info(f"Importing resource: {resource['id']}")
         new_resource = transform_resource(resource)
