@@ -7,6 +7,8 @@ scripts/extracted_data*/
 scripts/extras/
 # Allow customization scripts like user.py to postprocess migration data
 scripts/ckan_migrate/customize/*.py
+scripts/migration.log
+scripts/migration.log.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_resources(old_resources, new_db):
+def import_resources(old_resources, new_db, valid_packages_ids=None):
     """ Get all old resources from CSV and import them
         Return a list of errors and warnings for the general log
     """
@@ -20,48 +20,51 @@ def import_resources(old_resources, new_db):
     for resource in old_resources:
         ret['total_rows'] += 1
         log.info(f"Importing resource: {resource['id']}")
-        new_resource = transform_resource(resource)
+        new_resource = transform_resource(resource, valid_packages_ids=valid_packages_ids)
         if not new_resource:
             log.warning(f" - Skipping resource {resource['id']}.")
             ret['skipped_rows'] += 1
             continue
 
-        fields = new_resource.keys()
+        fields = list(new_resource.keys())
         placeholders = ', '.join(['%s'] * len(fields))
         # Check if the resource ID exists
         sql = 'SELECT * FROM "resource" WHERE id = %s'
         new_db.cursor.execute(sql, (resource["id"],))
         if new_db.cursor.fetchone():
             log.warning(f" - Resource {resource['id']} already exists, updating the record")
-            sql = f'UPDATE "resource" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
+            sql = f'UPDATE "resource" SET ({", ".join(fields)}) = ({placeholders}) WHERE id= %s'
             try:
                 new_db.cursor.execute(sql, tuple(new_resource[field] for field in fields) + (resource["id"],))
+                new_db.conn.commit()
             except Exception as e:
                 log.error(f" - Error updating resource {resource['id']}: {e}")
                 ret['errors'].append(f"Error updating resource {resource['id']}: {e}")
                 ret['skipped_rows'] += 1
-                # rollback to keep the transaction clean
                 new_db.conn.rollback()
                 continue
+            else:
+                log.info(f" - Resource {resource['id']} updated successfully.")
+                ret['migrated_rows'] += 1
         else:
-            sql = f'INSERT INTO "resource" ({', '.join(fields)}) VALUES ({placeholders})'
+            sql = f'INSERT INTO "resource" ({", ".join(fields)}) VALUES ({placeholders})'
             try:
                 new_db.cursor.execute(sql, tuple(new_resource[field] for field in fields))
+                new_db.conn.commit()
             except Exception as e:
                 log.error(f" - Error inserting resource {resource['id']}: {e}")
                 ret['errors'].append(f"Error inserting resource {resource['id']}: {e}")
                 ret['skipped_rows'] += 1
-                # rollback to keep the transaction clean
                 new_db.conn.rollback()
                 continue
-        log.info(f" - Resource {resource['id']} imported successfully.")
-        ret['migrated_rows'] += 1
+            else:
+                log.info(f" - Resource {resource['id']} created successfully.")
+                ret['migrated_rows'] += 1
 
-    new_db.conn.commit()
     return ret
 
 
-def transform_resource(resource, migrate_deleted=True):
+def transform_resource(resource, migrate_deleted=True, valid_packages_ids=None):
     """ Get an old db object and return a dict for the new DB object
         Old resources looks like:
           {
@@ -90,6 +93,8 @@ def transform_resource(resource, migrate_deleted=True):
         },
     """
     if not migrate_deleted and resource['state'] == 'deleted':
+        return None
+    if valid_packages_ids and resource['package_id'] not in valid_packages_ids:
         return None
 
     new_resource = {
