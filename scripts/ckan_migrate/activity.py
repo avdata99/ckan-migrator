@@ -34,8 +34,32 @@ def import_activities(old_activities, new_db, valid_users_ids=None):
         ret['valid_activities_ids'].append(new_activity['id'])
         fields = new_activity.keys()
         placeholders = ', '.join(['%s'] * len(fields))
-        sql = f'INSERT INTO "activity" ({", ".join(fields)}) VALUES ({placeholders})'
-        new_db.cursor.execute(sql, tuple(new_activity[field] for field in fields))
+        # Check if the activity ID exists
+        sql = 'SELECT * FROM "activity" WHERE id = %s'
+        new_db.cursor.execute(sql, (activity["id"],))
+        if new_db.cursor.fetchone():
+            log.warning(f" - Activity {activity['id']} already exists, updating the record")
+            sql = f'UPDATE "activity" SET ({", ".join(fields)}) = ({placeholders}) WHERE id= %s'
+            try:
+                new_db.cursor.execute(sql, tuple(new_activity[field] for field in fields) + (activity["id"],))
+            except Exception as e:
+                log.error(f" - Error updating activity {activity['id']}: {e}")
+                ret['errors'].append(f"Error updating activity {activity['id']}: {e}")
+                ret['skipped_rows'] += 1
+                # rollback to keep the transaction clean
+                new_db.conn.rollback()
+                continue
+        else:
+            sql = f'INSERT INTO "activity" ({", ".join(fields)}) VALUES ({placeholders})'
+            try:
+                new_db.cursor.execute(sql, tuple(new_activity[field] for field in fields))
+            except Exception as e:
+                log.error(f" - Error inserting activity {activity['id']}: {e}")
+                ret['errors'].append(f"Error inserting activity {activity['id']}: {e}")
+                ret['skipped_rows'] += 1
+                # rollback to keep the transaction clean
+                new_db.conn.rollback()
+                continue
         log.info(f" - Activity {activity['id']} imported successfully.")
         ret['migrated_rows'] += 1
 

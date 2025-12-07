@@ -14,7 +14,8 @@ def import_packages(old_packages, new_db, valid_users_ids=None):
         'migrated_rows': 0,
         'skipped_rows': 0,
         'warnings': [],
-        'errors': []
+        'errors': [],
+        'valid_packages_ids': [],
     }
 
     # Handle potential duplicate names
@@ -60,6 +61,7 @@ def import_packages(old_packages, new_db, valid_users_ids=None):
         log.info(f" - Package {package['name']} imported successfully.")
         names_in_use.append(new_package['name'])
         ret['migrated_rows'] += 1
+        ret['valid_packages_ids'].append(new_package['id'])
 
     new_db.conn.commit()
     return ret

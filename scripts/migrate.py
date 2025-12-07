@@ -7,6 +7,7 @@ and data.
 import argparse
 import json
 import logging
+import os
 import pandas as pd
 import psycopg2.extras
 from db import PSQL
@@ -106,6 +107,9 @@ def load_from_csv(csv_path):
     """
     extracted_data_folder = 'extracted_data'
     csv_path = f"{extracted_data_folder}/{csv_path}"
+    if os.path.exists(csv_path) is False:
+        print(f"CSV file not found: {csv_path}")
+        return []
     df = pd.read_csv(csv_path)
 
     # Convert DataFrame to list of dicts (similar to RealDictCursor output)
@@ -177,9 +181,14 @@ def main():
         print(f"Unknown mode: {args.mode}")
         return
 
+    f = open('migration.log', 'w')
+    f.write("CKAN Database Migrator Log\n")
+    f.write("===========================\n\n")
+
     # The user wants to migrate to a new db
     # We'll use the CSV files extracted previously with extract mode
     print(f"Connecting to NEW_DB: {args.new_user}@{args.new_host}:{args.new_port}/{args.new_dbname}")
+    f.write(f"Connecting to NEW_DB: {args.new_user}@{args.new_host}:{args.new_port}/{args.new_dbname}\n")
     # Create new_db instance with provided arguments
     new_db = PSQL(
         host=args.new_host,
@@ -191,11 +200,14 @@ def main():
 
     if not new_db.connect():
         print("Failed to connect to the new database.")
+        f.write("Failed to connect to the new database.\n")
+        f.close()
         return
 
     # Configure cursor to return dictionaries
     new_db.cursor = new_db.conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     print("New database connection established.")
+    f.write("New database connection established.\n\n")
 
     # Capture all logs for all migrations
     final_logs = {}
@@ -208,8 +220,8 @@ def main():
 
     # Do not migrate packages with creator_user_id that does not exist in the new DB
     final_logs['packages'] = import_packages(load_from_csv("package.csv"), new_db, valid_users_ids=valid_users_ids)
-
-    final_logs['resources'] = import_resources(load_from_csv("resource.csv"), new_db)
+    valid_packages_ids = final_logs['packages']['valid_packages_ids']
+    final_logs['resources'] = import_resources(load_from_csv("resource.csv"), new_db, valid_packages_ids=valid_packages_ids)
     final_logs['package_extras'] = import_package_extras(load_from_csv("package_extra.csv"), new_db)
     final_logs['package_tags'] = import_package_tags(load_from_csv("package_tag.csv"), new_db)
     # Do not migrate members from non valid users
@@ -230,7 +242,14 @@ def main():
     final_logs['term_translations'] = import_term_translations(load_from_csv("term_translation.csv"), new_db)
     final_logs['tracking_raw'] = import_tracking_raw(load_from_csv("tracking_raw.csv"), new_db)
 
+    f.write('Migration finished\n')
+    f.close()
+
+    f = open('migration.log.json', 'w')
     final_logs_nice = json.dumps(final_logs, indent=4)
+    f.write(final_logs_nice)
+    f.close()
+
     print(f'Migration finished: {final_logs_nice}')
 
 
