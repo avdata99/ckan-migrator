@@ -33,7 +33,7 @@ def import_package_extras(old_package_extras, new_db):
         new_db.cursor.execute(sql, (package_extra["id"],))
         if new_db.cursor.fetchone():
             log.warning(f" - Package extra {package_extra['id']} already exists, updating the record")
-            sql = f'UPDATE "package_extra" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
+            sql = f'UPDATE "package_extra" SET ({", ".join(fields)}) = ({placeholders}) WHERE id= %s'
             try:
                 new_db.cursor.execute(sql, tuple(new_package_extra[field] for field in fields) + (package_extra["id"],))
             except Exception as e:
@@ -44,7 +44,7 @@ def import_package_extras(old_package_extras, new_db):
                 new_db.conn.rollback()
                 continue
         else:
-            sql = f'INSERT INTO "package_extra" ({', '.join(fields)}) VALUES ({placeholders})'
+            sql = f'INSERT INTO "package_extra" ({", ".join(fields)}) VALUES ({placeholders})'
             try:
                 new_db.cursor.execute(sql, tuple(new_package_extra[field] for field in fields))
             except Exception as e:

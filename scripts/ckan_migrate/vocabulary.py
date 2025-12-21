@@ -42,10 +42,10 @@ def import_vocabularies(old_vocabularies, new_db):
         new_db.cursor.execute(sql, (vocabulary["id"],))
         if new_db.cursor.fetchone():
             log.warning(f" - Vocabulary {vocabulary['name']} already exists, updating the record")
-            sql = f'UPDATE "vocabulary" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
+            sql = f'UPDATE "vocabulary" SET ({", ".join(fields)}) = ({placeholders}) WHERE id= %s'
             new_db.cursor.execute(sql, tuple(new_vocabulary[field] for field in fields) + (vocabulary["id"],))
         else:
-            sql = f'INSERT INTO "vocabulary" ({', '.join(fields)}) VALUES ({placeholders})'
+            sql = f'INSERT INTO "vocabulary" ({", ".join(fields)}) VALUES ({placeholders})'
             new_db.cursor.execute(sql, tuple(new_vocabulary[field] for field in fields))
         log.info(f" - Vocabulary {vocabulary['name']} imported successfully.")
         names_in_use.append(new_vocabulary['name'])

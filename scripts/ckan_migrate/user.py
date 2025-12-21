@@ -50,12 +50,13 @@ def import_users(old_users, new_db):
         # Check if the user ID exists
         sql = 'SELECT * FROM "user" WHERE id = %s'
         new_db.cursor.execute(sql, (user["id"],))
+        fields_str = ', '.join(fields)
         if new_db.cursor.fetchone():
             log.warning(f" - User {user['name']} already exists, updating the record")
-            sql = f'UPDATE "user" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
+            sql = f'UPDATE "user" SET ({fields_str}) = ({placeholders}) WHERE id= %s'
             new_db.cursor.execute(sql, tuple(new_user[field] for field in fields) + (user["id"],))
         else:
-            sql = f'INSERT INTO "user" ({', '.join(fields)}) VALUES ({placeholders})'
+            sql = f'INSERT INTO "user" ({fields_str}) VALUES ({placeholders})'
             new_db.cursor.execute(sql, tuple(new_user[field] for field in fields))
         log.info(f" - User {user['name']} imported successfully.")
         emails_in_use.append(new_user['email'])

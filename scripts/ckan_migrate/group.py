@@ -42,10 +42,10 @@ def import_groups(old_groups, new_db):
         new_db.cursor.execute(sql, (group["id"],))
         if new_db.cursor.fetchone():
             log.warning(f" - Group {group['name']} already exists, updating the record")
-            sql = f'UPDATE "group" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
+            sql = f'UPDATE "group" SET ({", ".join(fields)}) = ({placeholders}) WHERE id= %s'
             new_db.cursor.execute(sql, tuple(new_group[field] for field in fields) + (group["id"],))
         else:
-            sql = f'INSERT INTO "group" ({', '.join(fields)}) VALUES ({placeholders})'
+            sql = f'INSERT INTO "group" ({", ".join(fields)}) VALUES ({placeholders})'
             new_db.cursor.execute(sql, tuple(new_group[field] for field in fields))
         log.info(f" - Group {group['name']} imported successfully.")
         names_in_use.append(new_group['name'])

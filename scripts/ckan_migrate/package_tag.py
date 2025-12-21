@@ -35,7 +35,7 @@ def import_package_tags(old_package_tags, new_db):
         new_db.cursor.execute(sql, (package_tag["id"],))
         if new_db.cursor.fetchone():
             log.warning(f" - Package tag {package_tag['id']} already exists, updating the record")
-            sql = f'UPDATE "package_tag" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
+            sql = f'UPDATE "package_tag" SET ({", ".join(fields)}) = ({placeholders}) WHERE id= %s'
             try:
                 new_db.cursor.execute(sql, tuple(new_package_tag[field] for field in fields) + (package_tag["id"],))
             except Exception as e:
@@ -46,7 +46,7 @@ def import_package_tags(old_package_tags, new_db):
                 new_db.conn.rollback()
                 continue
         else:
-            sql = f'INSERT INTO "package_tag" ({', '.join(fields)}) VALUES ({placeholders})'
+            sql = f'INSERT INTO "package_tag" ({", ".join(fields)}) VALUES ({placeholders})'
             try:
                 new_db.cursor.execute(sql, tuple(new_package_tag[field] for field in fields))
             except Exception as e:

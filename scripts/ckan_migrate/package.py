@@ -53,10 +53,10 @@ def import_packages(old_packages, new_db, valid_users_ids=None):
         new_db.cursor.execute(sql, (package["id"],))
         if new_db.cursor.fetchone():
             log.warning(f" - Package {package['name']} already exists, updating the record")
-            sql = f'UPDATE "package" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
+            sql = f'UPDATE "package" SET ({", ".join(fields)}) = ({placeholders}) WHERE id= %s'
             new_db.cursor.execute(sql, tuple(new_package[field] for field in fields) + (package["id"],))
         else:
-            sql = f'INSERT INTO "package" ({', '.join(fields)}) VALUES ({placeholders})'
+            sql = f'INSERT INTO "package" ({", ".join(fields)}) VALUES ({placeholders})'
             new_db.cursor.execute(sql, tuple(new_package[field] for field in fields))
         log.info(f" - Package {package['name']} imported successfully.")
         names_in_use.append(new_package['name'])

@@ -46,10 +46,10 @@ def import_tags(old_tags, new_db):
         new_db.cursor.execute(sql, (tag["id"],))
         if new_db.cursor.fetchone():
             log.warning(f" - Tag {tag['name']} already exists, updating the record")
-            sql = f'UPDATE "tag" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
+            sql = f'UPDATE "tag" SET ({", ".join(fields)}) = ({placeholders}) WHERE id= %s'
             new_db.cursor.execute(sql, tuple(new_tag[field] for field in fields) + (tag["id"],))
         else:
-            sql = f'INSERT INTO "tag" ({', '.join(fields)}) VALUES ({placeholders})'
+            sql = f'INSERT INTO "tag" ({", ".join(fields)}) VALUES ({placeholders})'
             new_db.cursor.execute(sql, tuple(new_tag[field] for field in fields))
         log.info(f" - Tag {tag['name']} imported successfully.")
         names_in_use.append(unique_key)
