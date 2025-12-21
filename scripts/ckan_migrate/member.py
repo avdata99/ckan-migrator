@@ -42,10 +42,10 @@ def import_members(old_members, new_db, valid_users_ids=None):
         new_db.cursor.execute(sql, (member["id"],))
         if new_db.cursor.fetchone():
             log.warning(f" - Member {member['id']} already exists, updating the record")
-            sql = f'UPDATE "member" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
+            sql = f'UPDATE "member" SET ({", ".join(fields)}) = ({placeholders}) WHERE id= %s'
             new_db.cursor.execute(sql, tuple(new_member[field] for field in fields) + (member["id"],))
         else:
-            sql = f'INSERT INTO "member" ({', '.join(fields)}) VALUES ({placeholders})'
+            sql = f'INSERT INTO "member" ({", ".join(fields)}) VALUES ({placeholders})'
             new_db.cursor.execute(sql, tuple(new_member[field] for field in fields))
         log.info(f" - Member {member['id']} imported successfully.")
         ret['migrated_rows'] += 1

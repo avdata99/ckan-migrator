@@ -33,10 +33,10 @@ def import_group_extras(old_group_extras, new_db):
         new_db.cursor.execute(sql, (group_extra["id"],))
         if new_db.cursor.fetchone():
             log.warning(f" - Group extra {group_extra['id']} already exists, updating the record")
-            sql = f'UPDATE "group_extra" SET ({', '.join(fields)}) = ({placeholders}) WHERE id= %s'
+            sql = f'UPDATE "group_extra" SET ({", ".join(fields)}) = ({placeholders}) WHERE id= %s'
             new_db.cursor.execute(sql, tuple(new_group_extra[field] for field in fields) + (group_extra["id"],))
         else:
-            sql = f'INSERT INTO "group_extra" ({', '.join(fields)}) VALUES ({placeholders})'
+            sql = f'INSERT INTO "group_extra" ({", ".join(fields)}) VALUES ({placeholders})'
             new_db.cursor.execute(sql, tuple(new_group_extra[field] for field in fields))
         log.info(f" - Group extra {group_extra['id']} imported successfully.")
         ret['migrated_rows'] += 1
