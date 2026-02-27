@@ -24,7 +24,8 @@ def import_users(old_users, new_db):
     # Old CKAN version allows duplicated emails
     # CKAN 2.11 do not allow them so we will hack them
     emails_in_use = []
-    for user in old_users:
+    old_users.cursor.execute('SELECT * FROM "user"')
+    for user in old_users.cursor.fetchall():
         ret['total_rows'] += 1
         log.info(f"Importing user: {user['name']}")
         new_user = transform_user(user)
@@ -87,8 +88,8 @@ def transform_user(user, migrate_deleted=True):
     if not migrate_deleted and user['state'] == 'deleted':
         return None
 
-    if importlib.util.find_spec("ckan_migrate.customize.user"):
-        custom_user = importlib.import_module("ckan_migrate.customize.user")
+    if importlib.util.find_spec("scripts.ckan_migrate.customize.user"):
+        custom_user = importlib.import_module("scripts.ckan_migrate.customize.user")
         if hasattr(custom_user, "transform_user"):
             log.info("Using custom transform_user function from customize/user.py")
             user = custom_user.transform_user(user)
