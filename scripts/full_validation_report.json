@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-03-03T13:08:07.764657",
+  "inputs": {
+    "remote_url": "https://datosgestionabierta.cba.gov.ar",
+    "local_url": "http://localhost:5000",
+    "backup_base": "/media/german/DATOS/Ubuntu/proyect/Gobierno_de_CORDOBA/ckan-migrator-gestion/Back_up_original/var/lib/ckan/datosgestionabierta",
+    "target_storage": null
+  },
+  "steps": {
+    "validate_backup": {
+      "exit_code": 0,
+      "output_file": "/media/german/DATOS/Ubuntu/proyect/Gobierno_de_CORDOBA/ckan-migrator-gestion/scripts/backup_validation.json"
+    },
+    "detailed_backup_comparison": {
+      "exit_code": 1,
+      "output_file": "/media/german/DATOS/Ubuntu/proyect/Gobierno_de_CORDOBA/ckan-migrator-gestion/scripts/detailed_comparison.json"
+    },
+    "file_content_comparison": {
+      "enabled": false,
+      "reason": "target_storage not provided"
+    }
+  },
+  "summary": {
+    "api_summary_ok": true,
+    "detailed_metadata_ok": false,
+    "file_content_enabled": false,
+    "file_content_ok": false,
+    "overall_ok": false
+  }
+}

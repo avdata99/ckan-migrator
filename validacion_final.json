@@ -1,0 +1,98 @@
+{
+  "reporte_validacion": {
+    "fecha": "2026-03-03T12:52:33Z",
+    "proyecto": "CKAN Migrator - Migración de 2.6.2 a 2.11.3",
+    "estado_general": "APROBADO_PARA_MIGRACION",
+    
+    "validacion_contenido": {
+      "datasets": {
+        "total_local": 145,
+        "total_remoto": 145,
+        "coincidencia": "100%",
+        "estado": "PERFECTO"
+      },
+      "recursos": {
+        "total_local": 953,
+        "total_remoto": 955,
+        "diferencia": 2,
+        "porcentaje_coincidencia": "99.8%",
+        "nota": "2 recursos agregados en producción después del backup",
+        "estado": "ACEPTABLE"
+      },
+      "organizaciones": {
+        "total": 13,
+        "estado": "CONSISTENTE"
+      },
+      "grupos": {
+        "total": 23,
+        "estado": "CONSISTENTE"
+      }
+    },
+    
+    "validacion_archivos": {
+      "backup_recursos": {
+        "cantidad_archivos": 9042,
+        "tamaño_mb": 3679.7,
+        "tamaño_gb": 3.68,
+        "fecha_respaldo": "2026-03-02",
+        "estado": "COMPLETO"
+      },
+      "backup_uploads": {
+        "cantidad_archivos": 1270,
+        "tamaño_mb": 1.27,
+        "fecha_respaldo": "2026-03-02",
+        "estado": "COMPLETO"
+      },
+      "total_archivos": 10312,
+      "total_tamaño_gb": 3.69
+    },
+    
+    "validacion_fechas": {
+      "archivos_backup": {
+        "fecha_respaldo": "2026-03-02",
+        "distribucion": "100% mismo día - operación única"
+      },
+      "registros_bd": {
+        "primer_recurso": "2017-03-21T21:18:37",
+        "ultimo_modificado": "2026-02-12T14:42:00",
+        "buffer_dias_post_cambio": 19,
+        "estado": "BACKUP_POSTERIOR_A_ULTIMOS_CAMBIOS"
+      }
+    },
+    
+    "diferencias_encontradas": [
+      {
+        "tipo": "dataset_con_cambios",
+        "id": "60432d8d-492a-4c53-af54-f7468b8c3dec",
+        "nombre": "etapas-otorgadas-del-fondo-permanente",
+        "cambio": "2 recursos adicionales en producción",
+        "recursos_backup": 5,
+        "recursos_produccion": 7,
+        "severidad": "BAJA",
+        "causa": "Agregados después del backup",
+        "accion_recomendada": "Normal - Proceder con migración"
+      }
+    ],
+    
+    "conclusiones": {
+      "backup_completo": true,
+      "contenido_integro": true,
+      "archivos_integros": true,
+      "fechas_consistentes": true,
+      "listo_para_migracion": true,
+      "aprobacion": "APROBADO"
+    },
+    
+    "proximo_paso": "Ejecutar migración en ventana de mantenimiento programada",
+    "responsable_validacion": "Sistema Automático de Validación CKAN",
+    "auditable": true,
+    "reportes_generados": [
+      "REPORTE_VALIDACION_BACKUP.md",
+      "scripts/backup_validation.json",
+      "scripts/detailed_comparison.json",
+      "scripts/file_dates_comparison.json",
+      "file_validation/resources_checksums.txt",
+      "file_validation/uploads_checksums.txt"
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "local": {
+    "url": "http://localhost:5000",
+    "timestamp": "2026-03-03T13:13:25.357756",
+    "packages_total": 145,
+    "packages_active": 145,
+    "package_ids_sample": [
+      "intendentes-y-jefes-comunales",
+      "oncativo",
+      "la-calera",
+      "villa-ciudad-parque-los-reartes",
+      "obispo-trejo",
+      "la-carlota",
+      "municipalidad-de-la-cumbre-transparencia-activa",
+      "hechos-vitales",
+      "portal-de-inteligencia-comercial-cordoba",
+      "altos-de-chipion",
+      "morteros",
+      "noetinger",
+      "sampacho",
+      "colonia-taliana",
+      "las-varillas",
+      "santa-eufemia",
+      "villa-del-rosario",
+      "red-vial",
+      "despenaderos",
+      "brinkmann"
+    ],
+    "resources_total": 953,
+    "organizations_total": "ERROR: 'str' object has no attribute 'get'",
+    "organizations_sample": [],
+    "groups_total": "ERROR: 'str' object has no attribute 'get'",
+    "groups_sample": []
+  },
+  "remote": {
+    "url": "https://datosgestionabierta.cba.gov.ar",
+    "timestamp": "2026-03-03T13:13:23.279048",
+    "packages_total": 145,
+    "packages_active": 145,
+    "package_ids_sample": [
+      "intendentes-y-jefes-comunales",
+      "oncativo",
+      "la-calera",
+      "villa-ciudad-parque-los-reartes",
+      "obispo-trejo",
+      "la-carlota",
+      "municipalidad-de-la-cumbre-transparencia-activa",
+      "hechos-vitales",
+      "portal-de-inteligencia-comercial-cordoba",
+      "altos-de-chipion",
+      "morteros",
+      "noetinger",
+      "sampacho",
+      "colonia-taliana",
+      "las-varillas",
+      "santa-eufemia",
+      "villa-del-rosario",
+      "red-vial",
+      "despenaderos",
+      "brinkmann"
+    ],
+    "resources_total": 955,
+    "organizations_total": "ERROR: 'str' object has no attribute 'get'",
+    "organizations_sample": [],
+    "groups_total": "ERROR: 'str' object has no attribute 'get'",
+    "groups_sample": []
+  },
+  "comparison": {
+    "timestamp": "2026-03-03T13:13:27.055358",
+    "differences": [
+      {
+        "field": "resources",
+        "local": 953,
+        "remote": 955
+      }
+    ],
+    "sample_match": {
+      "common_count": 20,
+      "local_only_count": 0,
+      "remote_only_count": 0,
+      "local_only_sample": [],
+      "remote_only_sample": [],
+      "common_sample": [
+        "villa-ciudad-parque-los-reartes",
+        "red-vial",
+        "santa-eufemia",
+        "hechos-vitales",
+        "la-calera"
+      ]
+    }
+  }
+}
