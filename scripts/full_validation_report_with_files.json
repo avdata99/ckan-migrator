@@ -1,0 +1,75 @@
+{
+  "timestamp": "2026-03-03T13:13:23.097302",
+  "inputs": {
+    "remote_url": "https://datosgestionabierta.cba.gov.ar",
+    "local_url": "http://localhost:5000",
+    "backup_base": "/media/german/DATOS/Ubuntu/proyect/Gobierno_de_CORDOBA/ckan-migrator-gestion/Back_up_original/var/lib/ckan/datosgestionabierta",
+    "target_storage": null,
+    "target_container": "ckan_cba",
+    "target_container_storage": "/app/cba_gestionabierta/storage"
+  },
+  "steps": {
+    "validate_backup": {
+      "exit_code": 0,
+      "output_file": "/media/german/DATOS/Ubuntu/proyect/Gobierno_de_CORDOBA/ckan-migrator-gestion/scripts/backup_validation.json"
+    },
+    "detailed_backup_comparison": {
+      "exit_code": 1,
+      "output_file": "/media/german/DATOS/Ubuntu/proyect/Gobierno_de_CORDOBA/ckan-migrator-gestion/scripts/detailed_comparison.json"
+    },
+    "file_content_comparison": {
+      "enabled": true,
+      "source_resources": "/media/german/DATOS/Ubuntu/proyect/Gobierno_de_CORDOBA/ckan-migrator-gestion/Back_up_original/var/lib/ckan/datosgestionabierta/resources",
+      "target_resources": "ckan_cba:/app/cba_gestionabierta/storage/resources",
+      "source_uploads": "/media/german/DATOS/Ubuntu/proyect/Gobierno_de_CORDOBA/ckan-migrator-gestion/Back_up_original/var/lib/ckan/datosgestionabierta/storage/uploads",
+      "target_uploads": "ckan_cba:/app/cba_gestionabierta/storage/storage/uploads",
+      "summary": {
+        "resources": {
+          "label": "resources",
+          "source_files": 9042,
+          "target_files": 9042,
+          "missing_count": 0,
+          "extra_count": 0,
+          "content_different_count": 0,
+          "metadata_different_count": 0,
+          "is_equal": true
+        },
+        "uploads": {
+          "label": "uploads",
+          "source_files": 56,
+          "target_files": 56,
+          "missing_count": 0,
+          "extra_count": 0,
+          "content_different_count": 0,
+          "metadata_different_count": 0,
+          "is_equal": true
+        }
+      },
+      "details": {
+        "resources": {
+          "source_files": 9042,
+          "target_files": 9042,
+          "missing_in_target": [],
+          "extra_in_target": [],
+          "content_different": [],
+          "metadata_different": []
+        },
+        "uploads": {
+          "source_files": 56,
+          "target_files": 56,
+          "missing_in_target": [],
+          "extra_in_target": [],
+          "content_different": [],
+          "metadata_different": []
+        }
+      }
+    }
+  },
+  "summary": {
+    "api_summary_ok": true,
+    "detailed_metadata_ok": false,
+    "file_content_enabled": true,
+    "file_content_ok": true,
+    "overall_ok": false
+  }
+}

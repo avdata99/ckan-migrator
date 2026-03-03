@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-03-03T13:13:30.266420",
+  "total_packages_checked": 145,
+  "packages_only_local": [],
+  "packages_only_remote": [],
+  "packages_different": {
+    "60432d8d-492a-4c53-af54-f7468b8c3dec": {
+      "name": "etapas-otorgadas-del-fondo-permanente",
+      "differences": {
+        "resource_count": {
+          "local": 5,
+          "remote": 7
+        },
+        "resources": {
+          "7000ee94-cc02-4a59-9369-6d6923f7c490": {
+            "status": "ONLY_REMOTE"
+          },
+          "a65808a8-db69-4a66-80a0-74ee773177a7": {
+            "status": "ONLY_REMOTE"
+          }
+        }
+      }
+    }
+  }
+}
