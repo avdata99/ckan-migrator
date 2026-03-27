@@ -1,5 +1,5 @@
 import importlib
-# To check if scripts/ckan_migrate/customize/user.py is defined 
+# To check if scripts/ckan_migrate/customize/user.py is defined
 # and import a custom transform_user function
 import logging
 
@@ -94,6 +94,11 @@ def transform_user(user, migrate_deleted=True):
             user = custom_user.transform_user(user)
             if not user:
                 return None
+    else:
+        raise Exception(
+            "No custom transform_user function found. "
+            "Please create customize/user.py with a transform_user function."
+        )
 
     new_user = {
         'id': user['id'],
