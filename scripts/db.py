@@ -8,6 +8,7 @@ import psycopg2
 import pandas as pd
 import json
 import os
+import importlib
 from datetime import datetime
 from typing import Dict, List, Any
 
@@ -122,6 +123,7 @@ class PSQL:
         """
         Extract all data from a specific table.
         """
+        print(f"Extracting data from table '{table_name}'...")
         query = f'SELECT * FROM "{table_name}";'
         if limit:
             query += f" LIMIT {limit}"
@@ -297,6 +299,31 @@ class PSQL:
                     # Extract data if requested
                     if save_data:
                         df = self.extract_table_data(table, limit=row_limit)
+                        # Filtrar usuarios si es la tabla user
+                        if table == "user" and not df.empty:
+                            try:
+                                # Intentar importar función personalizada
+                                custom_mod = importlib.util.find_spec("ckan_migrate.customize.user")
+                                if custom_mod:
+                                    custom_user = importlib.import_module("ckan_migrate.customize.user")
+                                    if hasattr(custom_user, "transform_user"):
+                                        print("Filtrando usuarios con customize/user.py ...")
+                                        # Aplicar filtro a cada usuario
+                                        filtered = []
+                                        for user in df.to_dict("records"):
+                                            new_user = custom_user.transform_user(user)
+                                            if new_user:
+                                                filtered.append(new_user)
+                                        if filtered:
+                                            import pandas as pd
+                                            df = pd.DataFrame(filtered)
+                                            print(f"Usuarios filtrados: {len(df)}")
+                                        else:
+                                            print("No quedaron usuarios tras el filtrado.")
+                                else:
+                                    print("No se encontró customize/user.py, no se filtran usuarios.")
+                            except Exception as e:
+                                print(f"Error aplicando filtro de usuarios: {e}")
                         if not df.empty:
                             extracted_data[table] = df
                             self.save_table_data(table, df)
